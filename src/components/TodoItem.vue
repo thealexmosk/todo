@@ -3,7 +3,7 @@
     :class="{'todo--draggable': isDraggable, 'todo--completed': isCompleted}">
       <input type="checkbox" v-model="todo.data.completed" @change="onCompletedChange">
       <div class="normal" v-show="!isEditing">
-          <button type="button" @click="showSubTodos = !showSubTodos" v-show="hasSubTodos()">v</button>
+          <button type="button" @click="showSubTodos = !showSubTodos" v-show="hasSubTodos()">{{ showSubTodos ? '-' : '+' }}</button>
           <label>{{ `${todo.data.title}` }}</label>
           <TimeNeeded v-show="todo.data.timeNeeded > 0" :timeNeeded="todo.data.timeNeeded"/>
           <button type="button" @click="addTodo">Add</button>
@@ -168,6 +168,7 @@ export default {
 
   onCompletedChange() {
     const completed = this.todo.data.completed
+    this.todo.data.completedAt = completed ? new Date() : null
 
     this.$emit('completedChange')
     this.completeChildTodos(completed)
@@ -193,6 +194,7 @@ export default {
 
       this.todo.subTodos.forEach( todo => {
         todo.data.completed = val
+        todo.data.completedAt = val ? new Date() : null
         todo.el.completeChildTodos(val)
       })
     },
