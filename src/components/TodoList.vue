@@ -1,20 +1,7 @@
 <template lang="html">
   <div class="todo__list">
     <h3>TODO List</h3>
-    <div class="todo__add">
-      <input placeholder="New To-Do"
-        type="text"
-        v-model.trim="newTitle">
-      <input placeholder="Time"
-        type="number"
-        v-model="newTime">
-      <button type="button" @click="addTodo">Add</button>
-    </div>
-    <div class="todo__filters">
-      <button type="button" @click="filter = 'all'">All</button>
-      <button type="button" @click="filter = 'active'">Active</button>
-      <button type="button" @click="filter = 'completed'">Completed</button>
-    </div>
+    <AddTodoInput @add="addSubTodo"/>
     <ul class="list">
       <draggable
         v-model="todos"
@@ -34,6 +21,11 @@
           />
       </draggable>
     </ul>
+    <div class="todo__filters">
+      <button type="button" @click="filter = 'all'">All</button>
+      <button type="button" @click="filter = 'active'">Active</button>
+      <button type="button" @click="filter = 'completed'">Completed</button>
+    </div>
     <div class="todo__control" v-show="todos.length > 0">
       <button type="button" @click="saveTodoStorage">SAVE</button>
       <button type="button" @click="clearTodoStorage">CLEAR</button>
@@ -44,7 +36,9 @@
 
 <script>
 import ToDo from '@/components/ToDo.vue'
+import AddTodoInput from '@/components/AddTodoInput.vue'
 import draggable from 'vuedraggable'
+import Vue from 'vue'
 
 const defTodo = {
   id: 0,
@@ -57,6 +51,8 @@ const defTodo = {
   createdAt: null,
   completedAt: null,
 }
+
+// Local Storage to save and get todos and idCounter
 const todoStorage = {
   getTodos() {
     const todos = JSON.parse(localStorage.getItem('todos')) || [defTodo]
@@ -73,6 +69,8 @@ const todoStorage = {
     localStorage.clear();
   }
 }
+
+// Filters for main todo list (not nested)
 const filters = {
   all(todos) {
     return todos.sort( (x, y) => {
@@ -91,9 +89,33 @@ const filters = {
   }
 }
 
+// Global class for creating new Todo objects
+Vue.prototype.$Todo = class Todo {
+  static idCounter = todoStorage.getIdCounter()
+
+  constructor({
+    title = '',
+    description = '',
+    completed = false,
+    dueDate = null,
+    timeNeeded = 0,
+    completedAt = null
+  } = {}) {
+    this.id = Todo.idCounter++
+    this.title = title
+    this.description = description
+    this.completed = completed
+    this.dueDate = dueDate
+    this.timeNeeded = timeNeeded
+    this.completedAt = completedAt
+    this.createdAt = new Date()
+  }
+}
+
 export default {
   components: {
     ToDo,
+    AddTodoInput,
     draggable
   },
   data() {
@@ -143,32 +165,17 @@ export default {
     incId() {
       this.idCounter++
     },
-    addTodo() {
-      const title = this.newTitle;
-      const timeVal = parseFloat(this.newTime);
-      const time = !isNaN(timeVal) ? timeVal : 0 ;
-
-      const newTodo = {
-        id: this.newId(),
-        title: title,
-        description: '',
-        completed: false,
-        timeNeeded: time,
-        dueDate: null,
-        isEditing: true,
-        subTodos: [],
-        createdAt: null,
-        completedAt: null,
-      };
-
-      this.todos.push(newTodo)
+    addSubTodo(todo) {
+      this.todos.push(todo)
     },
     logTodos() {
-      console.log('TODOS', this.todos)
-    },
-    newId() {
-      this.incId()
-      return this.idCounter
+      const params = {
+        title: 'Hello!'
+      }
+      const newShit = new this.$Todo(params)
+      console.log('NEWSHIT', newShit)
+
+      // console.log('TODOS', this.todos)
     },
     isMovable(evt) {
       return (!evt.draggedContext.element.isEditing)
