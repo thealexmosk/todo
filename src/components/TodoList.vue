@@ -40,22 +40,11 @@ import AddTodoInput from '@/components/AddTodoInput.vue'
 import draggable from 'vuedraggable'
 import Vue from 'vue'
 
-const defTodo = {
-  id: 0,
-  title: 'Tosdos',
-  description: '',
-  completed: false,
-  dueDate: null,
-  timeNeeded: 0,
-  subTodos: [],
-  createdAt: null,
-  completedAt: null,
-}
-
 // Local Storage to save and get todos and idCounter
 const todoStorage = {
   getTodos() {
-    const todos = JSON.parse(localStorage.getItem('todos')) || [defTodo]
+    const todos = JSON.parse(localStorage.getItem('todos')) || [defaultTodo]
+    console.log(todos)
     return todos
   },
   getIdCounter() {
@@ -109,8 +98,12 @@ Vue.prototype.$Todo = class Todo {
     this.timeNeeded = timeNeeded
     this.completedAt = completedAt
     this.createdAt = new Date()
+    this.subTodos = []
   }
 }
+
+// Default Todo
+const defaultTodo = new Vue.prototype.$Todo({title: 'Default Todo'})
 
 export default {
   components: {
@@ -169,13 +162,7 @@ export default {
       this.todos.push(todo)
     },
     logTodos() {
-      const params = {
-        title: 'Hello!'
-      }
-      const newShit = new this.$Todo(params)
-      console.log('NEWSHIT', newShit)
-
-      // console.log('TODOS', this.todos)
+      console.log('TODOS', this.todos)
     },
     isMovable(evt) {
       return (!evt.draggedContext.element.isEditing)
