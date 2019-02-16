@@ -72,7 +72,7 @@ export default {
   data() {
     return {
       newTitle: this.todo.title,
-      newTime: this.todo.time,
+      newTime: this.todo.timeNeeded,
       isEditing: false,
       isDraggable: true,
       isCompleted: this.todo.completed,
@@ -92,15 +92,15 @@ export default {
     },
     time() {
       if ( !this.hasSubTodos() ) {
-        return this.todo.time
+        return this.todo.timeNeeded
       }
 
-      const hasTime = this.todo.subTodos.every( todo => !isNaN(todo.time) && todo.time>0)
+      const hasTime = this.todo.subTodos.every( todo => !isNaN(todo.timeNeeded) && todo.timeNeeded>0)
 
       if (!hasTime)
         return ''
 
-      return this.todo.subTodos.reduce( (acc, todo) => acc + parseFloat(todo.time), 0);
+      return this.todo.subTodos.reduce( (acc, todo) => acc + parseFloat(todo.timeNeeded), 0);
     }
   },
   watch: {
@@ -111,7 +111,7 @@ export default {
         this.allowDraggable()
       }
     },
-    'todo.time': function() {
+    'todo.timeNeeded': function() {
       this.$emit('timeChange')
     },
     'todo.subTodos.length': function() {
@@ -121,15 +121,19 @@ export default {
   },
   methods: {
     addTodo() {
-      const time = this.getNewTime()
+      const timeNeeded = this.getNewTime()
 
       const newTodo = {
         id: this.newId(),
         title: '',
-        time: time,
+        description: '',
         completed: false,
-        isEditing: true,
+        dueDate: null,
+        timeNeeded: timeNeeded,
         subTodos: [],
+        createdAt: null,
+        completedAt: null,
+        isEditing: true,
       };
 
       this.showSubTodos = true
@@ -146,15 +150,15 @@ export default {
       this.completeChildTodos(completed)
     },
     calculateTime() {
-      this.todo.time = this.getTotalSubTodosTime()
+      this.todo.timeNeeded = this.getTotalSubTodosTime()
     },
     getTotalSubTodosTime() {
       if ( !this.hasSubTodos() ) {
-        return this.todo.time
+        return this.todo.timeNeeded
       }
 
       let l = this.todo.subTodos.reduce( (acc, todo) => {
-        return acc + parseFloat(todo.time)
+        return acc + parseFloat(todo.timeNeeded)
       }, 0)
       return l
     },
@@ -183,8 +187,8 @@ export default {
     },
     getNewTime() {
       return this.hasSubTodos() ?
-        this.todo.time - this.getTotalSubTodosTime() :
-        this.todo.time
+        this.todo.timeNeeded - this.getTotalSubTodosTime() :
+        this.todo.timeNeeded
     },
     isMovable(evt) {
       return (!evt.draggedContext.element.isEditing)
@@ -227,7 +231,7 @@ export default {
       this.setEditing(true)
       this.newTitle = this.todo.title
       this.cachedTitle = this.todo.title
-      this.cachedTime = this.todo.time
+      this.cachedTime = this.todo.timeNeeded
     },
     cancelEditTodo() {
       if (this.editBlurTimeoutRunning) {
@@ -243,7 +247,7 @@ export default {
         return
       }
 
-      this.todo.title = this.cachedTime
+      this.todo.timeNeeded = this.cachedTime
       this.todo.title = this.cachedTitle
       this.setEditing(false)
     },
@@ -277,7 +281,7 @@ export default {
       }
 
       this.todo.title = newTitle
-      this.todo.time = newTime
+      this.todo.timeNeeded = newTime
       this.setEditing(false)
     },
     setEditing(bool) {

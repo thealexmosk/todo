@@ -49,9 +49,13 @@ import draggable from 'vuedraggable'
 const defTodo = {
   id: 0,
   title: 'Tosdos',
-  time: 0,
+  description: '',
   completed: false,
+  dueDate: null,
+  timeNeeded: 0,
   subTodos: [],
+  createdAt: null,
+  completedAt: null,
 }
 const todoStorage = {
   getTodos() {
@@ -147,10 +151,14 @@ export default {
       const newTodo = {
         id: this.newId(),
         title: title,
-        time: time,
+        description: '',
         completed: false,
+        timeNeeded: time,
+        dueDate: null,
         isEditing: true,
         subTodos: [],
+        createdAt: null,
+        completedAt: null,
       };
 
       this.todos.push(newTodo)
