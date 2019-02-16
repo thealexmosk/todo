@@ -29,9 +29,7 @@ export default {
       const todo = new this.$Todo({title: title})
 
       this.$emit('newTodo', todo)
-    },
-    cancelEditTodo() {
-
+      this.newTitle = ''
     },
   }
 }

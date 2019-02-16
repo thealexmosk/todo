@@ -1,24 +1,21 @@
 <template lang="html">
   <div class="todo__list">
     <h3>TODO List</h3>
-    <AddTodoInput @add="addSubTodo"/>
+    <AddTodoInput @newTodo="addSubTodo"/>
     <ul class="list">
       <draggable
         v-model="todos"
         :move="isMovable"
         :options="{draggable:'.todo--draggable', group:'todos'}">
-        <ToDo
+        <TodoItem
           v-for="(todo, index) in filteredTodos"
-          :key="todo.id"
+          :key="todo.data.id"
           :todo="todo"
-          :idCounter="idCounter"
           :class="`todo__num-${index}`"
-          @incId="incId"
           @nodrag="cancelDraggable"
           @drag="allowDraggable"
           @confirmRemove="confirmRemoveTodo"
-          @remove="removeTodo"
-          />
+          @remove="removeTodo"/>
       </draggable>
     </ul>
     <div class="todo__filters">
@@ -35,7 +32,7 @@
 </template>
 
 <script>
-import ToDo from '@/components/ToDo.vue'
+import TodoItem from '@/components/TodoItem.vue'
 import AddTodoInput from '@/components/AddTodoInput.vue'
 import draggable from 'vuedraggable'
 import Vue from 'vue'
@@ -44,7 +41,6 @@ import Vue from 'vue'
 const todoStorage = {
   getTodos() {
     const todos = JSON.parse(localStorage.getItem('todos')) || [defaultTodo]
-    console.log(todos)
     return todos
   },
   getIdCounter() {
@@ -60,7 +56,7 @@ const todoStorage = {
 }
 
 // Filters for main todo list (not nested)
-const filters = {
+Vue.prototype.$todoFilters = {
   all(todos) {
     return todos.sort( (x, y) => {
       return x.completed === y.completed ?
@@ -90,14 +86,16 @@ Vue.prototype.$Todo = class Todo {
     timeNeeded = 0,
     completedAt = null
   } = {}) {
-    this.id = Todo.idCounter++
-    this.title = title
-    this.description = description
-    this.completed = completed
-    this.dueDate = dueDate
-    this.timeNeeded = timeNeeded
-    this.completedAt = completedAt
-    this.createdAt = new Date()
+    this.data = {
+      id: Todo.idCounter++,
+      title: title,
+      description: description,
+      completed: completed,
+      dueDate: dueDate,
+      timeNeeded: timeNeeded,
+      completedAt: completedAt,
+      createdAt: new Date(),
+    }
     this.subTodos = []
   }
 }
@@ -105,30 +103,28 @@ Vue.prototype.$Todo = class Todo {
 // Default Todo
 const defaultTodo = new Vue.prototype.$Todo({title: 'Default Todo'})
 
+// Vue
 export default {
   components: {
-    ToDo,
+    TodoItem,
     AddTodoInput,
     draggable
   },
   data() {
     return {
       todos: todoStorage.getTodos(),
-      idCounter: todoStorage.getIdCounter(),
-      newTitle: '',
-      newTime: '',
       filter: 'all',
     }
   },
   computed: {
     filteredTodos() {
-      return filters[this.filter](this.todos)
+      return Vue.prototype.$todoFilters[this.filter](this.todos)
     },
   },
   methods: {
     saveTodoStorage() {
       const todosForSave = copyTodosForSave(this.todos)
-      const idCounter = this.idCounter
+      const idCounter = this.$Todo.idCounter
 
       todoStorage.save(todosForSave, idCounter)
 
@@ -139,8 +135,8 @@ export default {
           ob.forEach( el => {
             todos.push( copyTodosForSave(el) )
           })
-        } else if (typeof ob === 'object' && ob.constructor === Object) {
-          const {el, isEditing, ...saveTodo} = ob;
+        } else if (typeof ob === 'object' && ob.data) {
+          const saveTodo = {data: ob.data}
           saveTodo.subTodos = copyTodosForSave(ob.subTodos)
           return saveTodo
         }
@@ -154,9 +150,6 @@ export default {
 
       todoStorage.clear()
       this.todos = []
-    },
-    incId() {
-      this.idCounter++
     },
     addSubTodo(todo) {
       this.todos.push(todo)
