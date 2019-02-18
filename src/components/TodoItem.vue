@@ -31,6 +31,7 @@
                 v-for="(subTodo, index) in filteredTodos"
                 :key="subTodo.data.id"
                 :todo="subTodo"
+                :parent="todo"
                 :class="`todo__num-${index}`"
                 @nodrag="cancelDraggable"
                 @drag="allowDraggable"
@@ -59,7 +60,8 @@ export default {
     draggable,
   },
   props: {
-    todo: Object
+    todo: Object,
+    parent: Object,
   },
   data() {
     return {
@@ -154,6 +156,9 @@ export default {
     },
     getSubTodosCount() {
       return this.todo.subTodos.length
+    },
+    isTodo() {
+      return true
     },
 
 // Setters
@@ -269,6 +274,7 @@ export default {
       this.isEditing = this.todo.isEditing
     }
     this.todo.el = this
+    this.todo.parent = this.parent
   },
 
   directives: {
