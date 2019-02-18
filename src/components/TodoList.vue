@@ -15,7 +15,8 @@
           @nodrag="cancelDraggable"
           @drag="allowDraggable"
           @confirmRemove="confirmRemoveTodo"
-          @remove="removeTodo"/>
+          @remove="removeTodo"
+          @openModal="$emit('openModal', $event)"/>
       </draggable>
     </ul>
     <div class="todo__filters">
@@ -47,7 +48,7 @@ const todoStorage = {
     return parseInt(localStorage.getItem('idCounter')) || 0
   },
   save(todos, idCounter) {
-    localStorage.setItem('todos', JSON.stringify(todos))
+    localStorage.setItem('todos', todos)
     localStorage.setItem('idCounter', idCounter)
   },
   clear() {
@@ -123,26 +124,12 @@ export default {
   },
   methods: {
     saveTodoStorage() {
-      const todosForSave = copyTodosForSave(this.todos)
       const idCounter = this.$Todo.idCounter
+      const todosForSave = JSON.stringify(this.todos, (key, val) => {
+        return key === 'el' ? undefined : val
+      });
 
       todoStorage.save(todosForSave, idCounter)
-
-      function copyTodosForSave(ob) {
-        const todos = []
-
-        if (Array.isArray(ob) && ob.length !== 0) {
-          ob.forEach( el => {
-            todos.push( copyTodosForSave(el) )
-          })
-        } else if (typeof ob === 'object' && ob.data) {
-          const saveTodo = {data: ob.data}
-          saveTodo.subTodos = copyTodosForSave(ob.subTodos)
-          return saveTodo
-        }
-
-        return todos
-      }
     },
     clearTodoStorage() {
       if ( !confirm('Are you sure?'))

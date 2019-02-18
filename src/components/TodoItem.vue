@@ -8,6 +8,7 @@
           <TimeNeeded v-show="todo.data.timeNeeded > 0" :timeNeeded="todo.data.timeNeeded"/>
           <button type="button" @click="addTodo">Add</button>
           <button type="button" @click="editTodo">Edit</button>
+          <button type="button" @click="$emit('openModal', todo)">More</button>
           <button type="button" @click="$emit('confirmRemove', todo.data.id)">X</button>
       </div>
       <div class="edit" v-show="isEditing">
@@ -33,6 +34,7 @@
                 :class="`todo__num-${index}`"
                 @nodrag="cancelDraggable"
                 @drag="allowDraggable"
+                @openModal="$emit('openModal', $event)"
                 @completedChange="checkCompleted"
                 @confirmRemove="confirmRemoveTodo"
                 @remove="removeTodo"/>
