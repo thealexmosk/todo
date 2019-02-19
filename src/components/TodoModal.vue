@@ -1,38 +1,49 @@
 <template lang="html">
   <div class="modal__wrapper" @mousedown="close" ref="modal">
       <div class="modal__container">
-          <div class="modal__row modal__title">
+          <div class="modal__row modal__title"  v-if="editingField != 'title'">
             <div class="todo-btn__container">
-              <h2 class="title">{{ todo.data.title }}</h2>
-              <TodoButton type="edit"/>
+              <h2 class="title">{{ currTodo.data.title }}</h2>
+              <TodoButton type="edit" @click="editingField = 'title'"/>
+            </div>
+            <div class="" v-if="editingField == 'title'">
+              <input type="text" v-model.trim="title">
+              <button type="button" >Ok</button>
+              <button type="button" >X</button>
             </div>
               <span>X</span>
           </div>
           <div class="modal__row">
-              <TimeNeeded :timeNeeded="todo.data.timeNeeded" :extended="true"/>
-              <DueDate :dueDate="todo.data.dueDate" :extended="true"/>
+              <TimeNeeded :timeNeeded="currTodo.data.timeNeeded" :extended="true"/>
+              <DueDate :dueDate="currTodo.data.dueDate" :extended="true"/>
           </div>
           <div class="modal__row">
             <div class="todo-btn__container">
               <h3 class="title">Description</h3>
               <TodoButton type="edit"/>
             </div>
-              {{ todo.data.description || 'Add a description' }}
+              {{ currTodo.data.description || 'Add a description' }}
           </div>
           <div class="modal__row">
-              <h3>Child todos</h3>
-              <ul>
-                <li v-for="subTosdo in todo.subTodos" :key="subTosdo.id">
+              <h3 class="title">Child todos</h3>
+              <ul v-if="currTodo.subTodos.length > 0">
+                <li v-for="subTodo in currTodo.subTodos" :key="subTodo.id">
                   <div class="todo-btn__container">
-                    <span>{{ subTosdo.data.title }}</span>
+                    <input type="checkbox" v-model="subTodo.data.completed">
+                    <span @click="currTodo = subTodo">{{ subTodo.data.title }}</span>
                     <TodoButton type="edit"/>
                   </div>
                 </li>
               </ul>
+              <div v-else class="">
+                Create new subTodos
+              </div>
           </div>
-          <div class="modal__row" v-if="todo.parent">
-              <h3>Parent Todo</h3>
-              {{ todo.parent.data.title }}
+          <div class="modal__row" v-if="currTodo.parent">
+              <h3 class="title">Parent Todo</h3>
+              <div class="" @click="currTodo = currTodo.parent">
+                {{ currTodo.parent.data.title }}
+              </div>
           </div>
           <div class="modal__row">
             <button type="button" name="button">Done</button>
@@ -59,7 +70,9 @@ export default {
   },
   data() {
     return {
-      yo: null
+      currTodo: this.todo,
+      title: this.todo.data.title,
+      editingField: '',
     }
   },
   computed: {

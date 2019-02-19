@@ -126,7 +126,7 @@ export default {
     saveTodoStorage() {
       const idCounter = this.$Todo.idCounter
       const todosForSave = JSON.stringify(this.todos, (key, val) => {
-        return key === 'el' ? undefined : val
+        return ['el','parent'].includes(key) ? undefined : val
       });
 
       todoStorage.save(todosForSave, idCounter)
