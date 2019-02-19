@@ -7,21 +7,11 @@
           <label>{{ `${todo.data.title}` }}</label>
           <TimeNeeded v-show="todo.data.timeNeeded > 0" :timeNeeded="todo.data.timeNeeded"/>
           <button type="button" @click="addTodo">Add</button>
-          <button type="button" @click="editTodo">Edit</button>
+          <button type="button" @click="isEditing=true">Edit</button>
           <button type="button" @click="$emit('openModal', todo)">More</button>
           <button type="button" @click="$emit('confirmRemove', todo.data.id)">X</button>
       </div>
-      <div class="edit" v-show="isEditing">
-          <input placeholder="New To-Do"
-            type="text"
-            v-model.trim="title"
-            v-todo-focus="isEditing"
-            @blur="onEditBlur"
-            @keyup.enter="finishEditTodo"
-            @keyup.esc="cancelEditTodo">
-          <button type="button" @click="finishEditTodo">Ok</button>
-          <button type="button" @click="cancelEditTodo">X</button>
-      </div>
+      <EditTodo :prop="todo.data.title" v-if="isEditing" @click="isEditing=true" @editResult="editResult"/>
       <ul class="subTodos" v-show="showSubTodos">
           <draggable
             v-model="todo.subTodos"
@@ -48,6 +38,7 @@
 import TodoItem from '@/components/TodoItem.vue'
 import TimeNeeded from '@/components/TimeNeeded.vue'
 import DueDate from '@/components/DueDate.vue'
+import EditTodo from '@/components/EditTodo.vue'
 import draggable from 'vuedraggable'
 import Vue from 'vue'
 
@@ -56,6 +47,7 @@ export default {
   components: {
     TodoItem,
     TimeNeeded,
+    EditTodo,
     DueDate,
     draggable,
   },
@@ -106,9 +98,7 @@ export default {
     }
   },
   methods: {
-
-// Emitters
-
+    
     cancelDraggable() {
       this.isDraggable = false
       this.$emit('nodrag');
@@ -121,8 +111,6 @@ export default {
       this.todo.data.completed = this.allSubTodosCompleted()
       this.$emit('completedChange')
     },
-
-// Getters
 
     getTotalSubTodosTime() {
       if ( !this.hasSubTodos() ) {
@@ -161,8 +149,6 @@ export default {
       return true
     },
 
-// Setters
-
     setEditing(bool) {
       this.isEditing = bool
       // this.todo.isEditing = bool
@@ -171,28 +157,23 @@ export default {
       this.todo.data.timeNeeded = this.getTotalSubTodosTime()
     },
 
-// Events
+    editResult(res, val) {
+      console.log('==', res, val)
+      if (res == 'store') {
+        this.todo.data.title = val
+      } else if (res == 'remove') {
+        this.$emit('remove', this.todo.data.id)
+      }
 
-  onCompletedChange() {
-    const completed = this.todo.data.completed
-    this.todo.data.completedAt = completed ? new Date() : null
+      this.isEditing = false
+    },
+    onCompletedChange() {
+      const completed = this.todo.data.completed
+      this.todo.data.completedAt = completed ? new Date() : null
 
-    this.$emit('completedChange')
-    this.completeChildTodos(completed)
-  },
-  onEditBlur() {
-    const vueThis = this
-
-    this.editBlurTimeoutRunning = true
-    this.editFocused = ''
-
-    this.editBlurTimeout = setTimeout( () => {
-      vueThis.finishEditTodo()
-      vueThis.editBlurTimeoutRunning = false
-    }, 300);
-  },
-
-// Actions
+      this.$emit('completedChange')
+      this.completeChildTodos(completed)
+    },
 
     completeChildTodos(val) {
       if ( !this.hasSubTodos() ) {
@@ -206,67 +187,26 @@ export default {
       })
     },
 
-// Todo CRUD methods
+      addTodo() {
+        const timeNeeded = this.getNewTime()
+        const newTodo = new this.$Todo({timeNeeded: timeNeeded})
 
-    addTodo() {
-      const timeNeeded = this.getNewTime()
-      const newTodo = new this.$Todo({timeNeeded: timeNeeded})
+        this.showSubTodos = true
+        this.todo.subTodos.push(newTodo)
+      },
 
-      this.showSubTodos = true
-      this.todo.subTodos.push(newTodo)
-    },
+      removeTodo(id) {
+        const todoId = this.todo.subTodos.findIndex( el => el.data.id === id)
 
-    removeTodo(id) {
-      const todoId = this.todo.subTodos.findIndex( el => el.data.id === id)
+        this.todo.subTodos.splice(todoId, 1)
+      },
+      confirmRemoveTodo(id) {
+        if (!window.confirm('Are you sure?')) {
+          return;
+        }
 
-      this.todo.subTodos.splice(todoId, 1)
-    },
-    confirmRemoveTodo(id) {
-      if (!window.confirm('Are you sure?')) {
-        return;
-      }
-
-      this.removeTodo(id)
-    },
-
-// Edit Todo methods
-
-    editTodo() {
-      this.title = this.cachedTitle = this.todo.data.title
-      this.setEditing(true)
-    },
-    cancelEditTodo() {
-      if (this.editBlurTimeoutRunning) {
-        clearTimeout(this.editBlurTimeout)
-        this.editBlurTimeoutRunning = false
-        this.title = this.cachedTitle
-        this.finishEditTodo()
-        return
-      }
-
-      if (!this.cachedTitle || this.cachedTitle.length === 0) {
-        this.$emit('remove', this.todo.data.id)
-        return
-      }
-
-      this.todo.data.title = this.cachedTitle
-      this.setEditing(false)
-    },
-    finishEditTodo() {
-      if (!this.isEditing) {
-        return
-      }
-
-      const title = this.title
-
-      if (!title || title.length === 0) {
-        this.$emit('remove', this.todo.data.id)
-        return
-      }
-
-      this.todo.data.title = title
-      this.setEditing(false)
-    },
+        this.removeTodo(id)
+      },
   },
 
   mounted() {
@@ -276,14 +216,6 @@ export default {
     this.todo.el = this
     this.todo.parent = this.parent
   },
-
-  directives: {
-    'todo-focus': function(el, binding) {
-      if (binding.value) {
-        el.focus();
-      }
-    }
-  }
 }
 </script>
 
