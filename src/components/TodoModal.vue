@@ -14,7 +14,7 @@
               {{ currTodo.data.completed ? 'Completed' : 'In progress' }}
           </div>
           <div class="modal__row">
-              <TimeNeeded :timeNeeded="currTodo.data.timeNeeded" :extended="true"/>
+              <TimeNeeded v-model="currTodo.data.timeNeeded" :extended="true"/>
               <DueDate :dueDate="currTodo.data.dueDate" :extended="true"/>
           </div>
           <div class="modal__row">
