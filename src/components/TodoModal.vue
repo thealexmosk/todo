@@ -1,17 +1,17 @@
 <template lang="html">
   <div class="modal__wrapper" @mousedown="close" ref="modal">
       <div class="modal__container">
-          <div class="modal__row modal__title"  v-if="editingField != 'title'">
-            <div class="todo-btn__container">
+          <div class="modal__row modal__title">
+            <div class="todo-btn__container" v-if="editingField != 'title'">
               <h2 class="title">{{ currTodo.data.title }}</h2>
-              <TodoButton type="edit" @click="editingField = 'title'"/>
+              <TodoButton type="edit" @click.native="editingField = 'title'"/>
             </div>
-            <div class="" v-if="editingField == 'title'">
-              <input type="text" v-model.trim="title">
-              <button type="button" >Ok</button>
-              <button type="button" >X</button>
-            </div>
-              <span>X</span>
+            <EditTodo :prop="currTodo.data.title" v-if="editingField == 'title'"/>
+            <span @click="$emit('close')">X</span>
+          </div>
+          <div class="modal__row">
+            <input type="checkbox" v-model="currTodo.data.completed"  @change="currTodo.el.onCompletedChange">
+              {{ currTodo.data.completed ? 'Completed' : 'In progress' }}
           </div>
           <div class="modal__row">
               <TimeNeeded :timeNeeded="currTodo.data.timeNeeded" :extended="true"/>
@@ -29,9 +29,9 @@
               <ul v-if="currTodo.subTodos.length > 0">
                 <li v-for="subTodo in currTodo.subTodos" :key="subTodo.id">
                   <div class="todo-btn__container">
-                    <input type="checkbox" v-model="subTodo.data.completed">
-                    <span @click="currTodo = subTodo">{{ subTodo.data.title }}</span>
-                    <TodoButton type="edit"/>
+                    <input type="checkbox" v-model="subTodo.data.completed" @change="subTodo.el.onCompletedChange">
+                    <span @dblclick="currTodo = subTodo">{{ subTodo.data.title }}</span>
+                    <TodoButton type="edit" @click.native="currTodo = subTodo"/>
                   </div>
                 </li>
               </ul>
@@ -41,12 +41,12 @@
           </div>
           <div class="modal__row" v-if="currTodo.parent">
               <h3 class="title">Parent Todo</h3>
-              <div class="" @click="currTodo = currTodo.parent">
-                {{ currTodo.parent.data.title }}
+              <div class="todo-btn__container">
+                <div class="" @dblclick="currTodo = currTodo.parent">
+                  {{ currTodo.parent.data.title }}
+                </div>
+                <TodoButton type="edit" @click.native="currTodo = currTodo.parent"/>
               </div>
-          </div>
-          <div class="modal__row">
-            <button type="button" name="button">Done</button>
           </div>
       </div>
   </div>
@@ -56,6 +56,7 @@
 import DueDate from '@/components/DueDate.vue'
 import TimeNeeded from '@/components/TimeNeeded.vue'
 import TodoButton from '@/components/TodoButton.vue'
+import EditTodo from '@/components/EditTodo.vue'
 import Vue from 'vue'
 
 export default {
@@ -63,7 +64,8 @@ export default {
   components: {
     DueDate,
     TimeNeeded,
-    TodoButton
+    TodoButton,
+    EditTodo,
   },
   props: {
     todo: Object

@@ -98,7 +98,7 @@ export default {
     }
   },
   methods: {
-    
+
     cancelDraggable() {
       this.isDraggable = false
       this.$emit('nodrag');
@@ -145,13 +145,9 @@ export default {
     getSubTodosCount() {
       return this.todo.subTodos.length
     },
-    isTodo() {
-      return true
-    },
 
     setEditing(bool) {
       this.isEditing = bool
-      // this.todo.isEditing = bool
     },
     calculateTime() {
       this.todo.data.timeNeeded = this.getTotalSubTodosTime()
