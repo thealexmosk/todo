@@ -16,7 +16,7 @@
           @drag="allowDraggable"
           @confirmRemove="confirmRemoveTodo"
           @remove="removeTodo"
-          @openModal="$emit('openModal', $event)"/>
+          @openModal="openModal"/>
       </draggable>
     </ul>
     <div class="todo__filters">
@@ -29,12 +29,17 @@
       <button type="button" @click="clearTodoStorage">CLEAR</button>
       <button type="button" @click="logTodos">TODOS</button>
     </div>
+    <TodoModal
+        :todo="modalTodo"
+        v-if="showModal"
+        @close="closeModal"/>
   </div>
 </template>
 
 <script>
 import TodoItem from '@/components/TodoItem.vue'
 import AddTodoInput from '@/components/AddTodoInput.vue'
+import TodoModal from '@/components/TodoModal.vue'
 import draggable from 'vuedraggable'
 import Vue from 'vue'
 
@@ -109,12 +114,15 @@ export default {
   components: {
     TodoItem,
     AddTodoInput,
+    TodoModal,
     draggable
   },
   data() {
     return {
       todos: todoStorage.getTodos(),
       filter: 'all',
+      showModal: false,
+      modalTodo: null
     }
   },
   computed: {
@@ -140,6 +148,14 @@ export default {
     },
     addSubTodo(todo) {
       this.todos.push(todo)
+    },
+    openModal(todo) {
+      this.modalTodo = todo
+      this.showModal = true
+    },
+    closeModal() {
+      this.modalTodo = null
+      this.showModal = false
     },
     logTodos() {
       console.log('TODOS', this.todos)
@@ -172,4 +188,22 @@ export default {
 <style lang="sass" scoped>
   .list
     text-align: left
+
+</style>
+
+<style lang="sass">
+
+.time-field
+  display: inline-block
+  &--extended:not(:last-child)
+    margin-right: 20px
+  &__label
+    text-align: left
+    font-size: 13px
+    margin-bottom: 5px
+  &__val
+    display: inline-block
+    padding: 5px 10px
+    color: rgba(255, 255, 255, 0.9)
+    border-radius: 5px
 </style>
