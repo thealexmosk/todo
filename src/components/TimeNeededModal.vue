@@ -3,8 +3,8 @@
     <div class="vdatetime-overlay modal" ref="modal" @click="close">
         <div class="vdatetime-popup">
             <div class="vdatetime-popup__header">
-              <div class="header__hours header__time">{{ `${hours} hours` }}</div>
-              <div class="header__minutes header__time">{{ `${minutes} minutes` }}</div>
+              <div class="header__hours header__time">{{ `${strHours} hours` }}</div>
+              <div class="header__minutes header__time">{{ `${strMinutes} minutes` }}</div>
             </div>
             <div class="vdatetime-popup__body time-needed">
                 <div class="time-needed__time">
@@ -12,7 +12,7 @@
                       Hours
                     </div>
                     <div class="time__input">
-                      <input type="number" @change="validateHours" v-model="hours">
+                      <input type="number" @input="validateHours" v-model="hours" ref="hours" placeholder="0">
                     </div>
                 </div>
                 <div class="time-needed__time">
@@ -20,7 +20,7 @@
                       Minutes
                     </div>
                     <div class="time__input">
-                      <input type="number" @change="validateMinutes" v-model="minutes">
+                      <input type="number" @input="validateMinutes" v-model="minutes" placeholder="0">
                     </div>
                 </div>
             </div>
@@ -46,16 +46,26 @@ export default {
       minutes: this.parseMins(this.value),
     }
   },
+  computed: {
+    strHours() {
+      return this.getStrTime(this.hours)
+    },
+    strMinutes() {
+      return this.getStrTime(this.minutes)
+    },
+  },
   methods: {
     parseMins(value) {
-      if ( isNaN(value) )
-        return 0
+      if ( !value || isNaN(value))
+        return undefined
 
-      return parseInt(value) % 60
+      const mins = parseInt(value) % 60
+
+      return mins > 0 ? mins : undefined
     },
     parseHours(value) {
-      if ( isNaN(value) )
-        return 0
+      if ( !value || isNaN(value) || value == 0)
+        return undefined
 
       return Math.floor(parseInt(value) / 60)
     },
@@ -75,8 +85,14 @@ export default {
           0 :
           parseInt(this.minutes)
     },
+    getStrTime(val) {
+      return !val || isNaN(val) ? 0 : val
+    },
     calculateMinutes() {
-      return this.hours*60 + this.minutes
+      const hours = this.getStrTime(this.hours)
+      const minutes = this.getStrTime(this.minutes)
+
+      return hours*60 + minutes
     },
     submit() {
       this.$emit('input', this.calculateMinutes())
@@ -87,6 +103,9 @@ export default {
         this.$emit('close')
       }
     }
+  },
+  mounted() {
+    this.$refs.hours.focus()
   }
 }
 </script>
