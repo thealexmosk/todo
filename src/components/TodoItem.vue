@@ -5,7 +5,8 @@
       <div class="normal" v-show="!isEditing">
           <button type="button" @click="showSubTodos = !showSubTodos" v-show="hasSubTodos()">{{ showSubTodos ? '-' : '+' }}</button>
           <label>{{ `${todo.data.title}` }}</label>
-          <TimeNeeded v-show="todo.data.timeNeeded > 0" :timeNeeded="todo.data.timeNeeded"/>
+          <TimeNeeded v-if="todo.data.timeNeeded > 0" v-model="todo.data.timeNeeded" @open="value => isDraggable = !value"/>
+          <DueDate v-if="todo.data.dueDate" v-model="todo.data.dueDate" @open="value => isDraggable = !value"/>
           <button type="button" @click="addTodo">Add</button>
           <button type="button" @click="isEditing=true">Edit</button>
           <button type="button" @click="$emit('openModal', todo)">More</button>
@@ -83,15 +84,15 @@ export default {
   },
   watch: {
     isEditing(val) {
+      this.isDraggable = !val
+    },
+    isDraggable(val) {
       if (val) {
-        this.cancelDraggable()
+        this.$emit('drag')
       } else {
-        this.allowDraggable()
+        this.$emit('nodrag')
       }
     },
-    // 'todo.data.timeNeeded': function() {
-    //   this.$emit('timeChange')
-    // },
     'todo.subTodos.length': function() {
       this.calculateTime()
       this.checkCompleted()
@@ -101,11 +102,11 @@ export default {
 
     cancelDraggable() {
       this.isDraggable = false
-      this.$emit('nodrag');
+      this.$emit('nodrag')
     },
     allowDraggable() {
       this.isDraggable = true
-      this.$emit('drag');
+      this.$emit('drag')
     },
     checkCompleted() {
       this.todo.data.completed = this.allSubTodosCompleted()

@@ -1,38 +1,40 @@
 <template lang="html">
-  <div class="vdatetime-overlay" ref="modal" @click="close">
-      <div class="vdatetime-popup">
-          <div class="vdatetime-popup__header">
-            <div class="header__hours header__time">{{ `${hours} hours` }}</div>
-            <div class="header__minutes header__time">{{ `${minutes} minutes` }}</div>
-          </div>
-          <div class="vdatetime-popup__body time-needed">
-              <div class="time-needed__time">
-                  <div class="time__label">
-                    Hours
-                  </div>
-                  <div class="time__input">
-                    <input type="number" @change="validateHours" v-model="hours">
-                  </div>
-              </div>
-              <div class="time-needed__time">
-                  <div class="time__label">
-                    Minutes
-                  </div>
-                  <div class="time__input">
-                    <input type="number" @change="validateMinutes" v-model="minutes">
-                  </div>
-              </div>
-          </div>
-          <div class="vdatetime-popup__actions">
-            <div class="vdatetime-popup__actions__button vdatetime-popup__actions__button--cancel" @click="$emit('close')">
-              Cancel
+  <transition name="fade">
+    <div class="vdatetime-overlay modal" ref="modal" @click="close">
+        <div class="vdatetime-popup">
+            <div class="vdatetime-popup__header">
+              <div class="header__hours header__time">{{ `${hours} hours` }}</div>
+              <div class="header__minutes header__time">{{ `${minutes} minutes` }}</div>
             </div>
-            <div class="vdatetime-popup__actions__button vdatetime-popup__actions__button--confirm" @click="submit">
-              Ok
+            <div class="vdatetime-popup__body time-needed">
+                <div class="time-needed__time">
+                    <div class="time__label">
+                      Hours
+                    </div>
+                    <div class="time__input">
+                      <input type="number" @change="validateHours" v-model="hours">
+                    </div>
+                </div>
+                <div class="time-needed__time">
+                    <div class="time__label">
+                      Minutes
+                    </div>
+                    <div class="time__input">
+                      <input type="number" @change="validateMinutes" v-model="minutes">
+                    </div>
+                </div>
             </div>
-          </div>
-      </div>
-  </div>
+            <div class="vdatetime-popup__actions">
+              <div class="vdatetime-popup__actions__button vdatetime-popup__actions__button--cancel" @click="$emit('close')">
+                Cancel
+              </div>
+              <div class="vdatetime-popup__actions__button vdatetime-popup__actions__button--confirm" @click="submit">
+                Ok
+              </div>
+            </div>
+        </div>
+    </div>
+  </transition>
 </template>
 
 <script>
@@ -46,9 +48,15 @@ export default {
   },
   methods: {
     parseMins(value) {
+      if ( isNaN(value) )
+        return 0
+
       return parseInt(value) % 60
     },
     parseHours(value) {
+      if ( isNaN(value) )
+        return 0
+
       return Math.floor(parseInt(value) / 60)
     },
     validateHours() {
@@ -79,9 +87,6 @@ export default {
         this.$emit('close')
       }
     }
-  },
-  mounted() {
-    console.log(this.value)
   }
 }
 </script>
@@ -109,5 +114,12 @@ export default {
     &__input
       input
         width: 5em
+
+  //Public
+  .fade-enter-active, .fade-leave-active
+    transition: opacity .5s
+
+  .fade-enter, .fade-leave-to
+    opacity: 0
 
 </style>
