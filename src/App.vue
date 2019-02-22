@@ -1,17 +1,17 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <TodoList />
+    <Todos />
   </div>
 </template>
 
 <script>
-import TodoList from './components/TodoList.vue'
+import Todos from './components/Todos.vue'
 
 export default {
   name: 'app',
   components: {
-    TodoList,
+    Todos,
   }
 }
 </script>
@@ -28,4 +28,8 @@ export default {
   color: #2c3e50
   margin-top: 60px
 
+.fade-enter-active, .fade-leave-active
+  transition: opacity .5s
+.fade-enter, .fade-leave-to
+  opacity: 0
 </style>

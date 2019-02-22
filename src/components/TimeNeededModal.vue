@@ -67,7 +67,9 @@ export default {
       if ( !value || isNaN(value) || value == 0)
         return undefined
 
-      return Math.floor(parseInt(value) / 60)
+      const hours = Math.floor(parseInt(value) / 60)
+
+      return hours > 0 ? hours : undefined
     },
     validateHours() {
       this.hours =
@@ -133,12 +135,5 @@ export default {
     &__input
       input
         width: 5em
-
-  //Public
-  .fade-enter-active, .fade-leave-active
-    transition: opacity .5s
-
-  .fade-enter, .fade-leave-to
-    opacity: 0
 
 </style>

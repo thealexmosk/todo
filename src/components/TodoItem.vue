@@ -2,8 +2,8 @@
   <li class="todo"
     :class="{'todo--draggable': isDraggable, 'todo--completed': isCompleted}">
       <input type="checkbox" v-model="todo.data.completed" @change="onCompletedChange">
-      <div class="normal" v-show="!isEditing">
-          <button type="button" @click="showSubTodos = !showSubTodos" v-show="hasSubTodos()">{{ showSubTodos ? '-' : '+' }}</button>
+      <div class="normal" v-if="!isEditing">
+          <button type="button" @click="showSubTodos = !showSubTodos" v-if="hasSubTodosComputed">{{ showSubTodos ? '-' : '+' }}</button>
           <label>{{ `${todo.data.title}` }}</label>
           <TimeNeeded v-if="todo.data.timeNeeded > 0" v-model="todo.data.timeNeeded" @open="value => isDraggable = !value"/>
           <DueDate v-if="todo.data.dueDate" v-model="todo.data.dueDate" @open="value => isDraggable = !value"/>
@@ -12,53 +12,49 @@
           <button type="button" @click="$emit('openModal', todo)">More</button>
           <button type="button" @click="$emit('confirmRemove', todo.data.id)">X</button>
       </div>
-      <EditTodo :prop="todo.data.title" v-if="isEditing" @click="isEditing=true" @editResult="editResult"/>
-      <ul class="subTodos" v-show="showSubTodos">
-          <draggable
-            v-model="todo.subTodos"
-            :move="isMovable"
-            :options="{draggable:'.todo--draggable', group:'todos'}">
-              <TodoItem
-                v-for="(subTodo, index) in filteredTodos"
-                :key="subTodo.data.id"
-                :todo="subTodo"
-                :parent="todo"
-                :class="`todo__num-${index}`"
-                @nodrag="cancelDraggable"
-                @drag="allowDraggable"
-                @openModal="$emit('openModal', $event)"
-                @completedChange="checkCompleted"
-                @confirmRemove="confirmRemoveTodo"
-                @remove="removeTodo"/>
-          </draggable>
-      </ul>
+      <EditTodo
+        v-if="isEditing"
+        input="title"
+        :prop="todo.data.title"
+        @click="isEditing=true"
+        @editResult="editResult">
+          <button type="button" @click="$emit('openModal', {todo: todo, editField: 'title'})">More</button>
+      </EditTodo>
+      <TodoList
+        v-if="hasSubTodosComputed"
+        v-model="currTodo.subTodos"
+        @openModal="$emit('openModal', $event)"
+        @completedChange="checkCompleted"
+        @draggableChange="changeDraggable"/>
   </li>
 </template>
 
 <script>
-import TodoItem from '@/components/TodoItem.vue'
+import TodoList from '@/components/TodoList.vue'
 import TimeNeeded from '@/components/TimeNeeded.vue'
 import DueDate from '@/components/DueDate.vue'
 import EditTodo from '@/components/EditTodo.vue'
-import draggable from 'vuedraggable'
 import Vue from 'vue'
 
 export default {
   name: 'TodoItem',
   components: {
-    TodoItem,
     TimeNeeded,
     EditTodo,
     DueDate,
-    draggable,
+    TodoList
   },
   props: {
     todo: Object,
     parent: Object,
+    nested: {
+      type: Boolean,
+      default: true
+    }
   },
   data() {
     return {
-      title: this.todo.data.title,
+      currTodo: this.todo,
       isEditing: this.todo.data.title.length == 0,
       isCompleted: this.todo.data.completed,
       isDraggable: true,
@@ -68,6 +64,9 @@ export default {
   computed: {
     filteredTodos() {
       return Vue.prototype.$todoFilters['all'](this.todo.subTodos)
+    },
+    hasSubTodosComputed() {
+      return this.currTodo.subTodos.length > 0
     },
     time() {
       if ( !this.hasSubTodos() ) {
@@ -87,6 +86,7 @@ export default {
       this.isDraggable = !val
     },
     isDraggable(val) {
+      this.$emit('draggableChange')
       if (val) {
         this.$emit('drag')
       } else {
@@ -99,14 +99,9 @@ export default {
     }
   },
   methods: {
-
-    cancelDraggable() {
-      this.isDraggable = false
-      this.$emit('nodrag')
-    },
-    allowDraggable() {
-      this.isDraggable = true
-      this.$emit('drag')
+    changeDraggable(val) {
+      this.isDraggable = val
+      this.$emit('draggableChange', val)
     },
     checkCompleted() {
       this.todo.data.completed = this.allSubTodosCompleted()
@@ -137,25 +132,17 @@ export default {
         this.todo.data.timeNeeded - this.getTotalSubTodosTime() :
         this.todo.data.timeNeeded
     },
-    isMovable(evt) {
-      return (!evt.draggedContext.element.isEditing)
-    },
     hasSubTodos() {
       return this.getSubTodosCount() > 0
     },
     getSubTodosCount() {
       return this.todo.subTodos.length
     },
-
-    setEditing(bool) {
-      this.isEditing = bool
-    },
     calculateTime() {
       this.todo.data.timeNeeded = this.getTotalSubTodosTime()
     },
 
     editResult(res, val) {
-      console.log('==', res, val)
       if (res == 'store') {
         this.todo.data.title = val
       } else if (res == 'remove') {
@@ -190,19 +177,6 @@ export default {
 
         this.showSubTodos = true
         this.todo.subTodos.push(newTodo)
-      },
-
-      removeTodo(id) {
-        const todoId = this.todo.subTodos.findIndex( el => el.data.id === id)
-
-        this.todo.subTodos.splice(todoId, 1)
-      },
-      confirmRemoveTodo(id) {
-        if (!window.confirm('Are you sure?')) {
-          return;
-        }
-
-        this.removeTodo(id)
       },
   },
 

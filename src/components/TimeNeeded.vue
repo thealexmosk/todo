@@ -18,6 +18,16 @@ import TodoButton from '@/components/TodoButton.vue'
 import TimeNeededModal from '@/components/TimeNeededModal.vue'
 import humanizeDuration from 'humanize-duration'
 
+const shortEnglishHumanizer = humanizeDuration.humanizer({
+  language: 'shortEn',
+  languages: {
+    shortEn: {
+      h: () => 'h',
+      m: () => 'm',
+    }
+  }
+})
+
 export default {
   components: {
     TodoButton,
@@ -39,7 +49,7 @@ export default {
         return '? hours'
       }
 
-      return humanizeDuration(this.time * 60000, {units: ['h', 'm']})
+      return shortEnglishHumanizer(this.time * 60000, {units: ['h', 'm']})
     }
   },
   methods: {

@@ -7,12 +7,13 @@
                 <h2 class="title">{{ currTodo.data.title }}</h2>
                 <TodoButton type="edit" @click.native="editingField = 'title'"/>
               </div>
-              <EditTodo :prop="currTodo.data.title" v-if="editingField == 'title'"/>
+              <EditTodo :prop="currTodo.data.title" :input='editingField' v-if="editingField == 'title'" @editResult="editResult"/>
               <span @click="$emit('close')">X</span>
             </div>
             <div class="modal__row">
               <input type="checkbox" v-model="currTodo.data.completed"  @change="currTodo.el.onCompletedChange">
-                {{ currTodo.data.completed ? 'Completed' : 'In progress' }}
+              <span v-if="currTodo.data.completed">Completed ({{ completedDate }})</span>
+              <span v-else>In progress</span>
             </div>
             <div class="modal__row">
                 <TimeNeeded v-model="currTodo.data.timeNeeded" :extended="true"/>
@@ -21,9 +22,12 @@
             <div class="modal__row">
               <div class="todo-btn__container">
                 <h3 class="title">Description</h3>
-                <TodoButton type="edit"/>
+                <TodoButton type="edit" v-if="editingField != 'description'"  @click.native="editingField = 'description'"/>
               </div>
+              <div v-if="editingField != 'description'">
                 {{ currTodo.data.description || 'Add a description' }}
+              </div>
+              <EditTodo :prop="currTodo.data.description" :input='editingField' type="description" v-if="editingField == 'description'" @editResult="editResult"/>
             </div>
             <div class="modal__row">
                 <h3 class="title">Child todos</h3>
@@ -59,6 +63,7 @@ import DueDate from '@/components/DueDate.vue'
 import TimeNeeded from '@/components/TimeNeeded.vue'
 import TodoButton from '@/components/TodoButton.vue'
 import EditTodo from '@/components/EditTodo.vue'
+import { DateTime } from 'luxon'
 import Vue from 'vue'
 
 export default {
@@ -70,12 +75,12 @@ export default {
     EditTodo,
   },
   props: {
-    todo: Object
+    todo: Object,
+    editField: String
   },
   data() {
     return {
       currTodo: this.todo,
-      title: this.todo.data.title,
       editingField: '',
     }
   },
@@ -83,12 +88,28 @@ export default {
     filteredTodos() {
       return Vue.prototype.$todoFilters['all'](this.todo.subTodos)
     },
+    completedDate() {
+      const date = DateTime.fromJSDate(this.currTodo.data.completedAt).toLocaleString()
+      return date
+    }
   },
   methods: {
+    editResult(res, val) {
+      if (res == 'store') {
+        this.currTodo.data[this.editingField] = val
+      }
+
+      this.editingField = null
+    },
     close(event) {
       if (event.target == this.$refs.modal) {
         this.$emit('close')
       }
+    }
+  },
+  mounted() {
+    if (this.editField) {
+      this.editingField = this.editField
     }
   }
 }
@@ -123,12 +144,4 @@ export default {
   .title
     display: inline-block
     margin: 0
-
-
-  // Public
-  .fade-enter-active, .fade-leave-active
-    transition: opacity .5s
-
-  .fade-enter, .fade-leave-to
-    opacity: 0
 </style>

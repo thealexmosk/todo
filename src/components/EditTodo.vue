@@ -3,12 +3,22 @@
       <input
         :placeholder="placeholder"
         type="text"
+        v-if="input == 'title'"
         v-model.trim="editProp"
         ref="edit"
         @blur="onEditBlur"
         @keyup.enter="finishEditTodo"
-        @keyup.esc="cancelEditTodo">
+        @keyup.esc="cancelEditTodo"/>
+        <textarea
+          :placeholder="placeholder"
+          v-if="input == 'description'"
+          v-model.trim="editProp"
+          ref="edit"
+          @blur="onEditBlur"
+          @keyup.enter="finishEditTodo"
+          @keyup.esc="cancelEditTodo"/>
       <button type="button" @click="finishEditTodo">Ok</button>
+      <slot/>
       <button type="button" @click="cancelEditTodo">X</button>
   </div>
 </template>
@@ -23,12 +33,6 @@ export default {
   },
   methods: {
     cancelEditTodo() {
-      // if (this.editBlurTimeoutRunning) {
-      //   clearTimeout(this.editBlurTimeout)
-      //   this.editBlurTimeoutRunning = false
-      //   this.finishEditTodo()
-      //   return
-      // }
 
       if (!this.prop || this.prop.length === 0) {
         this.$emit('editResult', 'remove')
