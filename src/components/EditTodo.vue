@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="edit">
       <input
-        :placeholder="placeholder"
+        placeholder="Add a title"
         type="text"
         v-if="input == 'title'"
         v-model.trim="editProp"
@@ -10,7 +10,7 @@
         @keyup.enter="finishEditTodo"
         @keyup.esc="cancelEditTodo"/>
         <textarea
-          :placeholder="placeholder"
+          placeholder="Add a description"
           v-if="input == 'description'"
           v-model.trim="editProp"
           ref="edit"

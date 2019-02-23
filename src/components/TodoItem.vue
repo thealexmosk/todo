@@ -3,13 +3,18 @@
     :class="{'todo--draggable': isDraggable, 'todo--completed': isCompleted}">
       <input type="checkbox" v-model="todo.data.completed" @change="onCompletedChange">
       <div class="normal" v-if="!isEditing">
-          <button type="button" @click="showSubTodos = !showSubTodos" v-if="hasSubTodosComputed">{{ showSubTodos ? '-' : '+' }}</button>
+          <button
+            type="button"
+            @click="showSubTodos = !showSubTodos"
+            v-if="isNested && hasSubTodosComputed">
+                {{ showSubTodos ? '-' : '+' }}
+          </button>
           <label>{{ `${todo.data.title}` }}</label>
           <TimeNeeded v-if="todo.data.timeNeeded > 0" v-model="todo.data.timeNeeded" @open="value => isDraggable = !value"/>
           <DueDate v-if="todo.data.dueDate" v-model="todo.data.dueDate" @open="value => isDraggable = !value"/>
           <button type="button" @click="addTodo">Add</button>
           <button type="button" @click="isEditing=true">Edit</button>
-          <button type="button" @click="$emit('openModal', todo)">More</button>
+          <button type="button" @click="todoExt">More</button>
           <button type="button" @click="$emit('confirmRemove', todo.data.id)">X</button>
       </div>
       <EditTodo
@@ -21,8 +26,9 @@
           <button type="button" @click="$emit('openModal', {todo: todo, editField: 'title'})">More</button>
       </EditTodo>
       <TodoList
-        v-if="hasSubTodosComputed"
+        v-show="isNested && hasSubTodosComputed && showSubTodos"
         v-model="currTodo.subTodos"
+        :parent="currTodo"
         @openModal="$emit('openModal', $event)"
         @completedChange="checkCompleted"
         @draggableChange="changeDraggable"/>
@@ -47,7 +53,7 @@ export default {
   props: {
     todo: Object,
     parent: Object,
-    nested: {
+    isNested: {
       type: Boolean,
       default: true
     }
@@ -62,9 +68,6 @@ export default {
     }
   },
   computed: {
-    filteredTodos() {
-      return Vue.prototype.$todoFilters['all'](this.todo.subTodos)
-    },
     hasSubTodosComputed() {
       return this.currTodo.subTodos.length > 0
     },
@@ -86,12 +89,7 @@ export default {
       this.isDraggable = !val
     },
     isDraggable(val) {
-      this.$emit('draggableChange')
-      if (val) {
-        this.$emit('drag')
-      } else {
-        this.$emit('nodrag')
-      }
+      this.$emit('draggableChange', val)
     },
     'todo.subTodos.length': function() {
       this.calculateTime()
@@ -99,6 +97,13 @@ export default {
     }
   },
   methods: {
+    todoExt(todo) {
+      if (!this.isNested) {
+        this.$emit('changeTodo', this.currTodo)
+      } else {
+        this.$emit('openModal', this.currTodo)
+      }
+    },
     changeDraggable(val) {
       this.isDraggable = val
       this.$emit('draggableChange', val)
@@ -184,8 +189,12 @@ export default {
     if (this.todo.isEditing) {
       this.isEditing = this.todo.isEditing
     }
-    this.todo.el = this
-    this.todo.parent = this.parent
+    if (!this.todo.parent && this.parent) {
+      this.todo.parent = this.parent
+    }
+    if (!this.todo.el) {
+      this.todo.el = this
+    }
   },
 }
 </script>

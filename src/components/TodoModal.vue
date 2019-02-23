@@ -31,26 +31,24 @@
             </div>
             <div class="modal__row">
                 <h3 class="title">Child todos</h3>
-                <ul v-if="currTodo.subTodos.length > 0">
-                  <li v-for="subTodo in currTodo.subTodos" :key="subTodo.id">
-                    <div class="todo-btn__container">
-                      <input type="checkbox" v-model="subTodo.data.completed" @change="subTodo.el.onCompletedChange">
-                      <span @dblclick="currTodo = subTodo">{{ subTodo.data.title }}</span>
-                      <TodoButton type="edit" @click.native="currTodo = subTodo"/>
-                    </div>
-                  </li>
-                </ul>
-                <div v-else class="">
+                <TodoList
+                  v-if="currTodo.el.hasSubTodosComputed"
+                  v-model="currTodo.subTodos"
+                  @completedChange="currTodo.el.checkCompleted"
+                  @draggableChange="currTodo.el.changeDraggable"
+                  @changeTodo="val => currTodo = val"
+                  :isNested="false"/>
+                <div v-else>
                   Create new subTodos
                 </div>
             </div>
             <div class="modal__row" v-if="currTodo.parent">
                 <h3 class="title">Parent Todo</h3>
                 <div class="todo-btn__container">
-                  <div class="" @dblclick="currTodo = currTodo.parent">
-                    {{ currTodo.parent.data.title }}
-                  </div>
-                  <TodoButton type="edit" @click.native="currTodo = currTodo.parent"/>
+                  <TodoItem
+                    :todo="currTodo.parent"
+                    :isNested="false"
+                    @changeTodo="val => currTodo = val"/>
                 </div>
             </div>
         </div>
@@ -60,6 +58,8 @@
 
 <script>
 import DueDate from '@/components/DueDate.vue'
+import TodoList from '@/components/TodoList.vue'
+import TodoItem from '@/components/TodoItem.vue'
 import TimeNeeded from '@/components/TimeNeeded.vue'
 import TodoButton from '@/components/TodoButton.vue'
 import EditTodo from '@/components/EditTodo.vue'
@@ -73,6 +73,8 @@ export default {
     TimeNeeded,
     TodoButton,
     EditTodo,
+    TodoList,
+    TodoItem
   },
   props: {
     todo: Object,

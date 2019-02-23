@@ -3,23 +3,6 @@
     <h3>TODO List</h3>
     <AddTodoInput @newTodo="addSubTodo"/>
     <TodoList v-model="todos" @openModal="openModal"/>
-    <!-- <ul class="list">
-      <draggable
-        v-model="todos"
-        :move="isMovable"
-        :options="{draggable:'.todo--draggable', group:'todos'}">
-        <TodoItem
-          v-for="(todo, index) in filteredTodos"
-          :key="todo.data.id"
-          :todo="todo"
-          :class="`todo__num-${index}`"
-          @nodrag="cancelDraggable"
-          @drag="allowDraggable"
-          @confirmRemove="confirmRemoveTodo"
-          @remove="removeTodo"
-          @openModal="openModal"/>
-      </draggable>
-    </ul> -->
     <div class="todo__filters">
       <button type="button" @click="filter = 'all'">All</button>
       <button type="button" @click="filter = 'active'">Active</button>
@@ -61,25 +44,6 @@ const todoStorage = {
   },
   clear() {
     localStorage.clear();
-  }
-}
-
-// Filters for main todo list (not nested)
-Vue.prototype.$todoFilters = {
-  all(todos) {
-    return todos.sort( (x, y) => {
-      return x.completed === y.completed ?
-        0 :
-        y.completed ?
-          -1 :
-          1
-      })
-  },
-  active(todos) {
-    return todos.filter( todo => !todo.completed)
-  },
-  completed(todos) {
-    return todos.filter( todo => todo.completed)
   }
 }
 
