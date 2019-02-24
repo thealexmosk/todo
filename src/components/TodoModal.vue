@@ -77,12 +77,12 @@ export default {
     TodoItem
   },
   props: {
-    todo: Object,
+    value: Object,
     editField: String
   },
   data() {
     return {
-      currTodo: this.todo,
+      currTodo: this.value,
       editingField: '',
     }
   },
@@ -113,6 +113,7 @@ export default {
     if (this.editField) {
       this.editingField = this.editField
     }
+    // console.log(this.todo)
   }
 }
 </script>

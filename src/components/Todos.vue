@@ -14,7 +14,7 @@
       <button type="button" @click="logTodos">TODOS</button>
     </div>
     <TodoModal
-        :todo="modalTodo"
+        v-model="modalTodo"
         :editField="editField"
         v-if="showModal"
         @close="closeModal"/>
@@ -22,11 +22,9 @@
 </template>
 
 <script>
-import TodoItem from '@/components/TodoItem.vue'
 import TodoList from '@/components/TodoList.vue'
 import AddTodoInput from '@/components/AddTodoInput.vue'
 import TodoModal from '@/components/TodoModal.vue'
-import draggable from 'vuedraggable'
 import Vue from 'vue'
 
 // Local Storage to save and get todos and idCounter
@@ -80,11 +78,9 @@ const defaultTodo = new Vue.prototype.$Todo({title: 'Default Todo'})
 export default {
   name: 'Todos',
   components: {
-    TodoItem,
     AddTodoInput,
     TodoModal,
     TodoList,
-    draggable,
   },
   data() {
     return {
@@ -94,11 +90,6 @@ export default {
       modalTodo: null,
       editField: '',
     }
-  },
-  computed: {
-    filteredTodos() {
-      return Vue.prototype.$todoFilters[this.filter](this.todos)
-    },
   },
   methods: {
     saveTodoStorage() {

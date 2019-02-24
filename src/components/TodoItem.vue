@@ -10,8 +10,8 @@
                 {{ showSubTodos ? '-' : '+' }}
           </button>
           <label>{{ `${todo.data.title}` }}</label>
-          <TimeNeeded v-if="todo.data.timeNeeded > 0" v-model="todo.data.timeNeeded" @open="value => isDraggable = !value"/>
-          <DueDate v-if="todo.data.dueDate" v-model="todo.data.dueDate" @open="value => isDraggable = !value"/>
+          <!-- <TimeNeeded v-if="todo.data.timeNeeded > 0" v-model="todo.data.timeNeeded" @open="value => isDraggable = !value"/>
+          <DueDate v-if="todo.data.dueDate" v-model="todo.data.dueDate" @open="value => isDraggable = !value"/> -->
           <button type="button" @click="addTodo">Add</button>
           <button type="button" @click="isEditing=true">Edit</button>
           <button type="button" @click="todoExt">More</button>
@@ -196,6 +196,9 @@ export default {
       this.todo.el = this
     }
   },
+  beforeCreate: function () {
+    this.$options.components.TodoList = require('@/components/TodoList.vue').default
+  }
 }
 </script>
 

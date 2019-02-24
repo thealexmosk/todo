@@ -4,6 +4,7 @@
       v-model="todoList"
       :move="isMovable"
       :options="{draggable:'.todo--draggable', group:'todos'}"
+      @change="onChange"
       @input="$emit('input', $event)">
       <TodoItem
         v-for="(todo, index) in filteredTodos"
@@ -29,18 +30,26 @@ import draggable from 'vuedraggable'
 const todoFilters = {
   all(todos) {
     return [...todos].sort( (x, y) => {
-      const xCompletedAt = x.data.completedAt
-      const yCompletedAt = y.data.completedAt
+      const xCompl = x.data.completed
+      const yCompl = y.data.completed
 
-      if (!xCompletedAt && !yCompletedAt) {
+      if (!xCompl && !yCompl) {
         return 0
-      } else if (xCompletedAt && !yCompletedAt) {
+        // const xIndex = x.data.customIndex || Infinity
+        // const yIndex = y.data.customIndex || Infinity
+        //
+        // return xIndex == yIndex ?
+        //   0 :
+        //   xIndex < yIndex ?
+        //     1 :
+        //     -1
+      } else if (xCompl && !yCompl) {
         return 1
-      } else if (yCompletedAt && !xCompletedAt) {
+      } else if (yCompl && !xCompl) {
         return -1
-      } else if (xCompletedAt && yCompletedAt) {
-        const xTime = new Date(xCompletedAt).getTime()
-        const yTime = new Date(yCompletedAt).getTime()
+      } else if (xCompl && yCompl) {
+        const xTime = new Date(x.data.completedAt).getTime()
+        const yTime = new Date(y.data.completedAt).getTime()
 
         return xTime == yTime ?
           0 :
@@ -99,6 +108,19 @@ export default {
     isMovable(evt) {
       return (!evt.draggedContext.element.isDraggable)
     },
+    onChange(evt) {
+      if (this.isNested)
+        return
+
+      // this.$emit('input', [...this.todoList])
+
+      // const key = Object.keys(evt)[0]
+      //
+      // if (key == 'moved' && !evt[key].element.data.completed) {
+      //   const el = evt[key].element
+      //   // console.log('EL', el)
+      // }
+    }
   },
   beforeCreate: function () {
     this.$options.components.TodoItem = require('@/components/TodoItem.vue').default
