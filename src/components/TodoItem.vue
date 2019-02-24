@@ -27,7 +27,7 @@
       </EditTodo>
       <TodoList
         v-show="isNested && hasSubTodosComputed && showSubTodos"
-        v-model="currTodo.subTodos"
+        :todos="currTodo.subTodos"
         :parent="currTodo"
         @openModal="$emit('openModal', $event)"
         @completedChange="checkCompleted"
@@ -37,18 +37,17 @@
 
 <script>
 import TodoList from '@/components/TodoList.vue'
-import TimeNeeded from '@/components/TimeNeeded.vue'
-import DueDate from '@/components/DueDate.vue'
 import EditTodo from '@/components/EditTodo.vue'
-import Vue from 'vue'
+// import TimeNeeded from '@/components/TimeNeeded.vue'
+// import DueDate from '@/components/DueDate.vue'
 
 export default {
   name: 'TodoItem',
   components: {
-    TimeNeeded,
     EditTodo,
-    DueDate,
     TodoList
+    // TimeNeeded,
+    // DueDate,
   },
   props: {
     todo: Object,

@@ -2,19 +2,19 @@
   <div class="todo__list">
     <h3>TODO List</h3>
     <AddTodoInput @newTodo="addSubTodo"/>
-    <TodoList v-model="todos" @openModal="openModal"/>
+    <TodoList :todos="todos" :filter="filter" @openModal="openModal"/>
     <div class="todo__filters">
       <button type="button" @click="filter = 'all'">All</button>
       <button type="button" @click="filter = 'active'">Active</button>
       <button type="button" @click="filter = 'completed'">Completed</button>
     </div>
-    <div class="todo__control" v-show="todos.length > 0">
+    <div class="todo__control">
       <button type="button" @click="saveTodoStorage">SAVE</button>
       <button type="button" @click="clearTodoStorage">CLEAR</button>
       <button type="button" @click="logTodos">TODOS</button>
     </div>
     <TodoModal
-        v-model="modalTodo"
+        :todo="modalTodo"
         :editField="editField"
         v-if="showModal"
         @close="closeModal"/>
@@ -73,6 +73,7 @@ Vue.prototype.$Todo = class Todo {
 
 // Default Todo
 const defaultTodo = new Vue.prototype.$Todo({title: 'Default Todo'})
+const yo = new Vue.prototype.$Todo({title: 'asdasd'})
 
 // Vue
 export default {
@@ -93,61 +94,62 @@ export default {
   },
   methods: {
     saveTodoStorage() {
-      const idCounter = this.$Todo.idCounter
+      const idCounter = this.$Todo.idCounter;
       const todosForSave = JSON.stringify(this.todos, (key, val) => {
-        return ['el','parent'].includes(key) ? undefined : val
+        return ['el','parent'].includes(key) ? undefined : val;
       });
 
-      todoStorage.save(todosForSave, idCounter)
+      todoStorage.save(todosForSave, idCounter);
     },
     clearTodoStorage() {
       if ( !confirm('Are you sure?'))
-        return
+        return;
 
-      todoStorage.clear()
-      this.todos = []
+      todoStorage.clear();
+      this.todos = null;
+      location.reload();
     },
     addSubTodo(todo) {
-      this.todos.push(todo)
+      this.todos.push(todo);
     },
     openModal(obj) {
       if (obj.editField) {
-        this.modalTodo = obj.todo
-        this.editField = obj.editField
+        this.modalTodo = obj.todo;
+        this.editField = obj.editField;
       } else {
-        this.modalTodo = obj
+        this.modalTodo = obj;
       }
 
-      this.showModal = true
+      this.showModal = true;
     },
     closeModal() {
-      this.modalTodo = null
-      this.editField = ''
-      this.showModal = false
+      this.modalTodo = null;
+      this.editField = '';
+      this.showModal = false;
     },
     logTodos() {
-      console.log('TODOS', this.todos)
+      console.log('TODOS', this.todos);
     },
     isMovable(evt) {
-      return (!evt.draggedContext.element.isEditing)
+      return (!evt.draggedContext.element.isEditing);
     },
     cancelDraggable() {
-      this.isDraggable = false
+      this.isDraggable = false;
     },
     allowDraggable() {
-      this.isDraggable = true
+      this.isDraggable = true;
     },
     confirmRemoveTodo(id) {
       if (!window.confirm('Are you sure?')) {
         return;
       }
 
-      this.removeTodo(id)
+      this.removeTodo(id);
     },
     removeTodo(id) {
-      const todoId = this.todos.findIndex( el => el.id === id)
+      const todoId = this.todos.findIndex( el => el.id === id);
 
-      this.todos.splice(todoId, 1)
+      this.todos.splice(todoId, 1);
     },
   }
 }
@@ -156,6 +158,10 @@ export default {
 <style lang="sass" scoped>
   .list
     text-align: left
+
+  .todo
+    &__filters
+      margin-bottom: 10px
 
 </style>
 

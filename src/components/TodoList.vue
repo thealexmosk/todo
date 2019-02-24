@@ -4,7 +4,6 @@
       v-model="todoList"
       :move="isMovable"
       :options="{draggable:'.todo--draggable', group:'todos'}"
-      @change="onChange"
       @input="$emit('input', $event)">
       <TodoItem
         v-for="(todo, index) in filteredTodos"
@@ -62,8 +61,9 @@ const todoFilters = {
 export default {
   name: 'TodoList',
   props: {
-    value: Array,
+    todos: Array,
     parent: Object,
+    filter: String,
     isNested: {
       type: Boolean,
       default: true
@@ -75,13 +75,14 @@ export default {
   },
   data() {
     return {
-      todoList: this.value,
-      isDraggable: true
+      todoList: this.todos,
+      isDraggable: true,
     }
   },
   computed: {
     filteredTodos() {
-      return todoFilters['all'](this.todoList)
+      const filter = this.filter || 'all'
+      return todoFilters[filter](this.todoList)
     },
   },
   methods: {
@@ -100,19 +101,6 @@ export default {
     isMovable(evt) {
       return (!evt.draggedContext.element.isDraggable)
     },
-    onChange(evt) {
-      if (this.isNested)
-        return
-
-      // this.$emit('input', [...this.todoList])
-
-      // const key = Object.keys(evt)[0]
-      //
-      // if (key == 'moved' && !evt[key].element.data.completed) {
-      //   const el = evt[key].element
-      //   // console.log('EL', el)
-      // }
-    }
   },
   beforeCreate: function () {
     this.$options.components.TodoItem = require('@/components/TodoItem.vue').default

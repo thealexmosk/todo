@@ -33,7 +33,7 @@
                 <h3 class="title">Child todos</h3>
                 <TodoList
                   v-if="currTodo.el.hasSubTodosComputed"
-                  v-model="currTodo.subTodos"
+                  :todos="currTodo.subTodos"
                   @completedChange="currTodo.el.checkCompleted"
                   @draggableChange="currTodo.el.changeDraggable"
                   @changeTodo="val => currTodo = val"
@@ -80,12 +80,12 @@ export default {
     AddTodoInput
   },
   props: {
-    value: Object,
+    todo: Object,
     editField: String
   },
   data() {
     return {
-      currTodo: this.value,
+      currTodo: this.todo,
       editingField: '',
     }
   },
