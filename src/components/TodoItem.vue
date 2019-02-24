@@ -12,7 +12,7 @@
           <label>{{ `${todo.data.title}` }}</label>
           <!-- <TimeNeeded v-if="todo.data.timeNeeded > 0" v-model="todo.data.timeNeeded" @open="value => isDraggable = !value"/>
           <DueDate v-if="todo.data.dueDate" v-model="todo.data.dueDate" @open="value => isDraggable = !value"/> -->
-          <button type="button" @click="addTodo">Add</button>
+          <button type="button" v-if="isNested" @click="addTodo">Add</button>
           <button type="button" @click="isEditing=true">Edit</button>
           <button type="button" @click="todoExt">More</button>
           <button type="button" @click="$emit('confirmRemove', todo.data.id)">X</button>
@@ -69,135 +69,136 @@ export default {
   },
   computed: {
     hasSubTodosComputed() {
-      return this.currTodo.subTodos.length > 0
+      return this.currTodo.subTodos.length > 0;
     },
     time() {
       if ( !this.hasSubTodos() ) {
-        return this.todo.data.timeNeeded
+        return this.todo.data.timeNeeded;
       }
 
-      const hasTime = this.todo.subTodos.every( todo => !isNaN(todo.data.timeNeeded) && todo.data.timeNeeded>0)
+      const hasTime = this.todo.subTodos.every( todo => !isNaN(todo.data.timeNeeded) && todo.data.timeNeeded>0);
 
       if (!hasTime)
-        return ''
+        return '';
 
       return this.todo.subTodos.reduce( (acc, todo) => acc + parseFloat(todo.data.timeNeeded), 0);
     }
   },
   watch: {
     isEditing(val) {
-      this.isDraggable = !val
+      this.isDraggable = !val;
     },
     isDraggable(val) {
-      this.$emit('draggableChange', val)
+      this.$emit('draggableChange', val);
     },
     'todo.subTodos.length': function() {
-      this.calculateTime()
-      this.checkCompleted()
+      this.calculateTime();
+      this.checkCompleted();
     }
   },
   methods: {
     todoExt(todo) {
       if (!this.isNested) {
-        this.$emit('changeTodo', this.currTodo)
+        this.$emit('changeTodo', this.currTodo);
       } else {
-        this.$emit('openModal', this.currTodo)
+        this.$emit('openModal', this.currTodo);
       }
     },
     changeDraggable(val) {
-      this.isDraggable = val
-      this.$emit('draggableChange', val)
+      this.isDraggable = val;
+      this.$emit('draggableChange', val);
     },
     checkCompleted() {
-      this.todo.data.completed = this.allSubTodosCompleted()
-      this.$emit('completedChange')
+      this.todo.data.completed = this.allSubTodosCompleted();
+      this.todo.data.completedAt = this.todo.data.completed ? new Date() : null;
+      this.$emit('completedChange');
     },
 
     getTotalSubTodosTime() {
       if ( !this.hasSubTodos() ) {
-        return this.todo.data.timeNeeded
+        return this.todo.data.timeNeeded;
       }
 
       let l = this.todo.subTodos.reduce( (acc, todo) => {
-        return acc + parseFloat(todo.data.timeNeeded)
+        return acc + parseFloat(todo.data.timeNeeded);
       }, 0)
-      return l
+      return l;
     },
     allSubTodosCompleted() {
       if ( !this.hasSubTodos() ) {
-        return this.todo.data.completed
+        return this.todo.data.completed;
       }
 
       return this.todo.subTodos.every( todo => {
-        return (todo.data.completed === true)
+        return (todo.data.completed === true);
       })
     },
     getNewTime() {
       return this.hasSubTodos() ?
         this.todo.data.timeNeeded - this.getTotalSubTodosTime() :
-        this.todo.data.timeNeeded
+        this.todo.data.timeNeeded;
     },
     hasSubTodos() {
-      return this.getSubTodosCount() > 0
+      return this.getSubTodosCount() > 0;
     },
     getSubTodosCount() {
-      return this.todo.subTodos.length
+      return this.todo.subTodos.length;
     },
     calculateTime() {
-      this.todo.data.timeNeeded = this.getTotalSubTodosTime()
+      this.todo.data.timeNeeded = this.getTotalSubTodosTime();
     },
 
     editResult(res, val) {
       if (res == 'store') {
-        this.todo.data.title = val
+        this.todo.data.title = val;
       } else if (res == 'remove') {
-        this.$emit('remove', this.todo.data.id)
+        this.$emit('remove', this.todo.data.id);
       }
 
-      this.isEditing = false
+      this.isEditing = false;
     },
     onCompletedChange() {
-      const completed = this.todo.data.completed
-      this.todo.data.completedAt = completed ? new Date() : null
+      const completed = this.todo.data.completed;
+      this.todo.data.completedAt = completed ? new Date() : null;
 
-      this.$emit('completedChange')
-      this.completeChildTodos(completed)
+      this.$emit('completedChange');
+      this.completeChildTodos(completed);
     },
 
     completeChildTodos(val) {
       if ( !this.hasSubTodos() ) {
-        return
+        return;
       }
 
       this.todo.subTodos.forEach( todo => {
-        todo.data.completed = val
-        todo.data.completedAt = val ? new Date() : null
-        todo.el.completeChildTodos(val)
+        todo.data.completed = val;
+        todo.data.completedAt = val ? new Date() : null;
+        todo.el.completeChildTodos(val);
       })
     },
 
-      addTodo() {
-        const timeNeeded = this.getNewTime()
-        const newTodo = new this.$Todo({timeNeeded: timeNeeded})
+    addTodo() {
+      const timeNeeded = this.getNewTime();
+      const newTodo = new this.$Todo({timeNeeded: timeNeeded});
 
-        this.showSubTodos = true
-        this.todo.subTodos.push(newTodo)
-      },
+      this.showSubTodos = true;
+      this.todo.subTodos.push(newTodo);
+    },
   },
 
   mounted() {
     if (this.todo.isEditing) {
-      this.isEditing = this.todo.isEditing
+      this.isEditing = this.todo.isEditing;
     }
     if (!this.todo.parent && this.parent) {
-      this.todo.parent = this.parent
+      this.todo.parent = this.parent;
     }
     if (!this.todo.el) {
-      this.todo.el = this
+      this.todo.el = this;
     }
   },
   beforeCreate: function () {
-    this.$options.components.TodoList = require('@/components/TodoList.vue').default
+    this.$options.components.TodoList = require('@/components/TodoList.vue').default;
   }
 }
 </script>

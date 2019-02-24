@@ -41,6 +41,7 @@
                 <div v-else>
                   Create new subTodos
                 </div>
+                <AddTodoInput @newTodo="addSubTodo"/>
             </div>
             <div class="modal__row" v-if="currTodo.parent">
                 <h3 class="title">Parent Todo</h3>
@@ -63,6 +64,7 @@ import TodoItem from '@/components/TodoItem.vue'
 import TimeNeeded from '@/components/TimeNeeded.vue'
 import TodoButton from '@/components/TodoButton.vue'
 import EditTodo from '@/components/EditTodo.vue'
+import AddTodoInput from '@/components/AddTodoInput.vue'
 import { DateTime } from 'luxon'
 import Vue from 'vue'
 
@@ -74,7 +76,8 @@ export default {
     TodoButton,
     EditTodo,
     TodoList,
-    TodoItem
+    TodoItem,
+    AddTodoInput
   },
   props: {
     value: Object,
@@ -107,13 +110,15 @@ export default {
       if (event.target == this.$refs.modal) {
         this.$emit('close')
       }
-    }
+    },
+    addSubTodo(todo) {
+      this.currTodo.subTodos.push(todo)
+    },
   },
   mounted() {
     if (this.editField) {
       this.editingField = this.editField
     }
-    // console.log(this.todo)
   }
 }
 </script>

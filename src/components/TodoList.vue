@@ -35,14 +35,6 @@ const todoFilters = {
 
       if (!xCompl && !yCompl) {
         return 0
-        // const xIndex = x.data.customIndex || Infinity
-        // const yIndex = y.data.customIndex || Infinity
-        //
-        // return xIndex == yIndex ?
-        //   0 :
-        //   xIndex < yIndex ?
-        //     1 :
-        //     -1
       } else if (xCompl && !yCompl) {
         return 1
       } else if (yCompl && !xCompl) {
