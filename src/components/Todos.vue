@@ -2,8 +2,13 @@
   <div class="todo__list">
     <h3>TODO List</h3>
     <AddTodoInput @newTodo="addSubTodo"/>
-    <TodoList :todos="todos" :filter="filter" @openModal="openModal"/>
-    <div class="todo__filters">
+    <div class="">
+      <div v-for="todo in $store.getters.mainTodos">
+        {{ todo }}
+      </div>
+    </div>
+    <!-- <TodoList :todos="todos" :filter="filter" @openModal="openModal"/> -->
+    <!-- <div class="todo__filters">
       <button type="button" @click="filter = 'all'">All</button>
       <button type="button" @click="filter = 'active'">Active</button>
       <button type="button" @click="filter = 'completed'">Completed</button>
@@ -17,7 +22,7 @@
         :todo="modalTodo"
         :editField="editField"
         v-if="showModal"
-        @close="closeModal"/>
+        @close="closeModal"/> -->
   </div>
 </template>
 

@@ -11,9 +11,6 @@
 <script>
 
 export default {
-  props: {
-    todo: Object,
-  },
   data() {
     return {
       newTitle: '',
@@ -24,12 +21,10 @@ export default {
       const title = this.newTitle;
 
       if (title == '')
-        return
+        return;
 
-      const todo = new this.$Todo({title: title})
-
-      this.$emit('newTodo', todo)
-      this.newTitle = ''
+      this.$store.dispatch('addTodo', { title });
+      this.newTitle = '';
     },
   }
 }
