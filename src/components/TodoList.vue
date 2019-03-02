@@ -1,23 +1,17 @@
 <template lang="html">
   <ul class="list">
     <draggable
+      v-if="todos"
       v-model="todoList"
       :move="isMovable"
       :options="{draggable:'.todo--draggable', group:'todos'}"
       @input="$emit('input', $event)">
       <TodoItem
-        v-for="(todo, index) in filteredTodos"
-        :key="todo.data.id"
+        v-for="(todo, index) in todos"
+        :key="todo.id"
         :todo="todo"
-        :parent="parent"
         :class="`todo__num-${index}`"
-        :isNested="isNested"
-        @draggableChange="$emit('draggableChange')"
-        @confirmRemove="confirmRemoveTodo"
-        @completedChange="$emit('completedChange')"
-        @remove="removeTodo"
-        @openModal="$emit('openModal', $event)"
-        @changeTodo="$emit('changeTodo', $event)"/>
+        @draggableChange="$emit('draggableChange', $event)"/>
     </draggable>
   </ul>
 </template>
@@ -29,8 +23,8 @@ import draggable from 'vuedraggable'
 const todoFilters = {
   all(todos) {
     return [...todos].sort( (x, y) => {
-      const xCompl = x.data.completed
-      const yCompl = y.data.completed
+      const xCompl = x.completed
+      const yCompl = y.completed
 
       if (!xCompl && !yCompl) {
         return 0
@@ -39,8 +33,8 @@ const todoFilters = {
       } else if (yCompl && !xCompl) {
         return -1
       } else if (xCompl && yCompl) {
-        const xTime = new Date(x.data.completedAt).getTime()
-        const yTime = new Date(y.data.completedAt).getTime()
+        const xTime = new Date(x.completedAt).getTime()
+        const yTime = new Date(y.completedAt).getTime()
 
         return xTime == yTime ?
           0 :
@@ -51,23 +45,19 @@ const todoFilters = {
       })
   },
   active(todos) {
-    return todos.filter( todo => !todo.data.completed)
+    return todos.filter( todo => !todo.completed)
   },
   completed(todos) {
-    return todos.filter( todo => todo.data.completed)
+    return todos.filter( todo => todo.completed)
   }
 }
 
 export default {
   name: 'TodoList',
   props: {
+    parent: [Object, Number],
     todos: Array,
-    parent: Object,
     filter: String,
-    isNested: {
-      type: Boolean,
-      default: true
-    },
   },
   components: {
     TodoItem,
@@ -75,7 +65,6 @@ export default {
   },
   data() {
     return {
-      todoList: this.todos,
       isDraggable: true,
     }
   },
@@ -84,20 +73,17 @@ export default {
       const filter = this.filter || 'all'
       return todoFilters[filter](this.todoList)
     },
+    todoList: {
+        get() {
+          return this.todos
+        },
+        set(value) {
+          const arr = value.map( todo => todo.id);
+          this.$store.dispatch('changeOrder', {arr: arr, parent: this.parent})
+        }
+    }
   },
   methods: {
-    confirmRemoveTodo(id) {
-      if (!window.confirm('Are you sure?')) {
-        return;
-      }
-
-      this.removeTodo(id)
-    },
-    removeTodo(id) {
-      const todoId = this.todoList.findIndex( el => el.data.id === id)
-
-      this.todoList.splice(todoId, 1)
-    },
     isMovable(evt) {
       return (!evt.draggedContext.element.isDraggable)
     },

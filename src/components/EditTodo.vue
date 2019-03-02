@@ -25,43 +25,46 @@
 
 <script>
 export default {
-  props: ['prop', 'input', 'placeholder'],
+  props: ['todoId', 'prop', 'input', 'placeholder'],
   data() {
     return {
       editProp: this.prop,
+      isEditing: true,
     }
   },
   methods: {
     checkFinishTimeout() {
-      if (this.editBlurTimeoutRunning) {
-        clearTimeout(this.editBlurTimeout);
-        this.editBlurTimeoutRunning = false;
-        this.finishEditTodo();
-        return
-      }
+      if (!this.editBlurTimeoutRunning) return
+
+      clearTimeout(this.editBlurTimeout);
+      this.editBlurTimeoutRunning = false;
     },
     cancelEditTodo() {
-      this.checkFinishTimeout();
+      this.checkFinishTimeout()
 
       if (!this.prop || this.prop.length === 0) {
-        this.$emit('editResult', 'remove');
-        return;
+        this.$store.dispatch('removeTodo', this.todoId);
       }
 
-      this.$emit('editResult', 'nochange')
+      this.$store.dispatch('unsetEditing');
     },
     finishEditTodo() {
-      if (this.editBlurTimeoutRunning) return
+      this.checkFinishTimeout()
 
       if (!this.editProp || this.editProp.length === 0) {
-        this.$emit('editResult', 'remove');
-        return;
+        this.$store.dispatch('removeTodo', this.todoId);
+      } else {
+        const editParams = {[this.input]: this.editProp};
+        this.$store.dispatch('editTodo', {id: this.todoId, params: editParams});
       }
 
-      this.$emit('editResult', 'store', this.editProp);
+      this.$store.dispatch('unsetEditing');
+
+      // Editing finished
+      this.isEditing = false;
     },
     onEditBlur() {
-
+      if (!this.isEditing) return
       const vueThis = this;
 
       this.editBlurTimeoutRunning = true;
