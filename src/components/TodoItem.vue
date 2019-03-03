@@ -6,7 +6,7 @@
           <button
             type="button"
             @click="showSubTodos = !showSubTodos"
-            v-if="hasSubTodosComputed">
+            v-if="nested && hasSubTodosComputed">
                 {{ showSubTodos ? '-' : '+' }}
           </button>
           <label>{{ `${todo.title}` }}</label>
@@ -18,16 +18,16 @@
           <button type="button" @click="confirmRemove">X</button>
       </div>
       <EditTodo
-        v-if="$store.state.editingTodo == todo.id"
+        v-if="isEditing"
         input="title"
         :todoId="todo.id"
-        :prop="todo.title"
-        @click="$store.setEditing(todo.id)">
+        :prop="todo.title">
           <button type="button">More</button>
       </EditTodo>
       <TodoList
-        v-show="showSubTodos"
+        v-show="nested && showSubTodos"
         :parent="todo.id"
+        :nested="nested"
         :todos="$store.getters.subTodos(todo.id)"
         @draggableChange="changeDraggable"/>
   </li>
@@ -48,7 +48,11 @@ export default {
     // DueDate,
   },
   props: {
-    todo: Object
+    todo: Object,
+    nested: {
+      type: Boolean,
+      default: true
+    },
   },
   data() {
     return {
@@ -58,7 +62,13 @@ export default {
   },
   computed: {
     isEditing() {
-      return this.$store.state.editingTodo == this.todo.id
+      const isEditingTodo = this.$store.state.editingTodo === this.todo.id;
+
+      if (this.nested) {
+        return isEditingTodo && this.$store.state.modalTodo === null
+      }
+
+      return isEditingTodo && this.$store.state.modalTodo !== this.todo.id
     },
     subTodos() {
       return this.$store.getters.subTodos(this.todo.id);

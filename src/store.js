@@ -171,6 +171,8 @@ const store = new Vuex.Store({
         context.commit('ADD_TODO_TO_SUBTODOS', { id: id, toId: params.parentTodo });
         context.commit('CHECK_COMPLETE_TODOS_PARENTS', { parentId: params.parentTodo });
       }
+
+      context.commit('SET_EDITING', id);
     },
     editTodo: (context, todo) => {
       context.commit('EDIT_TODO', todo);
@@ -223,6 +225,13 @@ const store = new Vuex.Store({
     },
     isEditing: (state) => (id) => {
       return id === state.editingTodo
+    },
+    todoParent: (state) => (id) => {
+      const parent = state.todos[id].parentTodo;
+
+      if (parent === null) return;
+
+      return state.todos[parent]
     },
     hasSubTodos: (state) => (id) => {
       return state.todos[id].subTodos.length > 0

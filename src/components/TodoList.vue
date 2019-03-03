@@ -10,6 +10,7 @@
         v-for="(todo, index) in todos"
         :key="todo.id"
         :todo="todo"
+        :nested="nested"
         :class="`todo__num-${index}`"
         @draggableChange="$emit('draggableChange', $event)"/>
     </draggable>
@@ -57,6 +58,10 @@ export default {
   props: {
     parent: [Object, Number],
     todos: Array,
+    nested: {
+      type: Boolean,
+      default: true
+    },
     filter: String,
   },
   components: {

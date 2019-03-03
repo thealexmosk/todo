@@ -3,11 +3,15 @@
     <div class="modal__wrapper" @mousedown="close" ref="modal">
         <div class="modal__container">
             <div class="modal__row modal__title">
-              <div class="todo-btn__container" v-if="editingField != 'title'">
+              <div class="todo-btn__container" v-if="!isEditing || editingField != 'title'">
                 <h2 class="title">{{ todo.title }}</h2>
-                <TodoButton type="edit" @click.native="editingField = 'title'"/>
+                <TodoButton type="edit" @click.native="isEditing = 'title'"/>
               </div>
-              <EditTodo :prop="todo.title" :input='editingField' v-if="editingField == 'title'" @editResult="editResult"/>
+              <EditTodo
+                :prop="todo.title"
+                :input='editingField'
+                :todoId="todo.id"
+                v-if="isEditing && editingField == 'title'"/>
               <span @click="$store.commit('CLOSE_MODAL')">X</span>
             </div>
             <div class="modal__row">
@@ -22,32 +26,34 @@
             <div class="modal__row">
               <div class="todo-btn__container">
                 <h3 class="title">Description</h3>
-                <TodoButton type="edit" v-if="editingField != 'description'"  @click.native="editingField = 'description'"/>
+                <TodoButton type="edit" v-if="!isEditing || editingField != 'description'"  @click.native="isEditing = 'description'"/>
               </div>
-              <div v-if="editingField != 'description'">
+              <div v-if="!isEditing || editingField != 'description'">
                 {{ todo.description || 'Add a description' }}
               </div>
-              <EditTodo :prop="todo.description" :input='editingField' type="description" v-if="editingField == 'description'" @editResult="editResult"/>
+              <EditTodo
+                :prop="todo.description"
+                :input='editingField'
+                :todoId="todo.id"
+                v-if="isEditing && editingField == 'description'"/>
             </div>
             <div class="modal__row">
                 <h3 class="title">Child todos</h3>
                 <TodoList
                   v-if="true"
-                  :todos="todo.subTodos"
-                  @changeTodo="val => currTodo = val"
-                  :isNested="false"/>
+                  :todos="$store.getters.subTodos(todo.id)"
+                  :nested="false"/>
                 <div v-else>
                   Create new subTodos
                 </div>
                 <AddTodoInput @newTodo="addSubTodo"/>
             </div>
-            <div class="modal__row" v-if="todo.parent">
+            <div class="modal__row" v-if="todo.parentTodo !== null">
                 <h3 class="title">Parent Todo</h3>
                 <div class="todo-btn__container">
                   <TodoItem
-                    :todo="todo.parent"
-                    :isNested="false"
-                    @changeTodo="val => currTodo = val"/>
+                    :todo="$store.getters.todoParent(todo.id)"
+                    :nested="false"/>
                 </div>
             </div>
         </div>
@@ -88,6 +94,17 @@ export default {
     }
   },
   computed: {
+    isEditing: {
+      get() {
+        const isEditing = this.$store.state.editingTodo == this.todo.id
+          && this.$store.state.modalTodo === this.todo.id;
+        return isEditing
+      },
+      set(val) {
+        this.$store.dispatch('setEditing', this.todo.id)
+        this.editingField = val;
+      }
+    },
     filteredTodos() {
       return Vue.prototype.$todoFilters['all'](this.todo.subTodos)
     },
