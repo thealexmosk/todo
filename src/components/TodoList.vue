@@ -74,19 +74,12 @@ export default {
       return todoFilters[filter](this.todoList)
     },
     todoList: {
-        get() {
-          return this.todos
-        },
-        set(value) {
-          const arr = value.map( todo => todo.id);
-          this.$store.dispatch('changeOrder', {arr: arr, parent: this.parent})
-        }
-    }
-  },
-  watch: {
-    'todoList.length': function () {
-      if (this.parent !== undefined) {
-        this.$store.commit('CHECK_COMPLETE_TODOS_PARENTS', {parentId: this.parent});
+      get() {
+        return this.todos
+      },
+      set(value) {
+        const arr = value.map( todo => todo.id);
+        this.$store.dispatch('changeOrder', {arr: arr, parent: this.parent})
       }
     }
   },

@@ -14,7 +14,7 @@
           <DueDate v-if="todo.dueDate" v-model="todo.dueDate" @open="value => isDraggable = !value"/> -->
           <button type="button" @click="addTodo">Add</button>
           <button type="button" @click="$store.dispatch('setEditing', todo.id)">Edit</button>
-          <button type="button" >More</button>
+          <button type="button" @click="$store.commit('OPEN_MODAL', todo.id)">More</button>
           <button type="button" @click="confirmRemove">X</button>
       </div>
       <EditTodo
@@ -93,7 +93,7 @@ export default {
       this.$store.dispatch('completeTodo', {id: this.todo.id, complete: this.todo.completed})
     },
     addTodo() {
-      this.$store.dispatch('addTodo', {title: '', parentTodo: this.todo.id});
+      this.$store.dispatch('createTodo', {title: '', parentTodo: this.todo.id});
     },
     confirmRemove() {
       if (!window.confirm('Are you sure?')) return;

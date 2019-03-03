@@ -4,20 +4,20 @@
         <div class="modal__container">
             <div class="modal__row modal__title">
               <div class="todo-btn__container" v-if="editingField != 'title'">
-                <h2 class="title">{{ currTodo.data.title }}</h2>
+                <h2 class="title">{{ todo.title }}</h2>
                 <TodoButton type="edit" @click.native="editingField = 'title'"/>
               </div>
-              <EditTodo :prop="currTodo.data.title" :input='editingField' v-if="editingField == 'title'" @editResult="editResult"/>
-              <span @click="$emit('close')">X</span>
+              <EditTodo :prop="todo.title" :input='editingField' v-if="editingField == 'title'" @editResult="editResult"/>
+              <span @click="$store.commit('CLOSE_MODAL')">X</span>
             </div>
             <div class="modal__row">
-              <input type="checkbox" v-model="currTodo.data.completed"  @change="currTodo.el.onCompletedChange">
-              <span v-if="currTodo.data.completed">Completed ({{ completedDate }})</span>
+              <input type="checkbox" v-model="todo.completed">
+              <span v-if="todo.completed">Completed ({{ completedDate }})</span>
               <span v-else>In progress</span>
             </div>
             <div class="modal__row">
-                <TimeNeeded v-model="currTodo.data.timeNeeded" :extended="true"/>
-                <DueDate v-model="currTodo.data.dueDate" :extended="true"/>
+                <TimeNeeded v-model="todo.timeNeeded" :extended="true"/>
+                <DueDate v-model="todo.dueDate" :extended="true"/>
             </div>
             <div class="modal__row">
               <div class="todo-btn__container">
@@ -25,17 +25,15 @@
                 <TodoButton type="edit" v-if="editingField != 'description'"  @click.native="editingField = 'description'"/>
               </div>
               <div v-if="editingField != 'description'">
-                {{ currTodo.data.description || 'Add a description' }}
+                {{ todo.description || 'Add a description' }}
               </div>
-              <EditTodo :prop="currTodo.data.description" :input='editingField' type="description" v-if="editingField == 'description'" @editResult="editResult"/>
+              <EditTodo :prop="todo.description" :input='editingField' type="description" v-if="editingField == 'description'" @editResult="editResult"/>
             </div>
             <div class="modal__row">
                 <h3 class="title">Child todos</h3>
                 <TodoList
-                  v-if="currTodo.el.hasSubTodosComputed"
-                  :todos="currTodo.subTodos"
-                  @completedChange="currTodo.el.checkCompleted"
-                  @draggableChange="currTodo.el.changeDraggable"
+                  v-if="true"
+                  :todos="todo.subTodos"
                   @changeTodo="val => currTodo = val"
                   :isNested="false"/>
                 <div v-else>
@@ -43,11 +41,11 @@
                 </div>
                 <AddTodoInput @newTodo="addSubTodo"/>
             </div>
-            <div class="modal__row" v-if="currTodo.parent">
+            <div class="modal__row" v-if="todo.parent">
                 <h3 class="title">Parent Todo</h3>
                 <div class="todo-btn__container">
                   <TodoItem
-                    :todo="currTodo.parent"
+                    :todo="todo.parent"
                     :isNested="false"
                     @changeTodo="val => currTodo = val"/>
                 </div>
@@ -94,7 +92,7 @@ export default {
       return Vue.prototype.$todoFilters['all'](this.todo.subTodos)
     },
     completedDate() {
-      const date = DateTime.fromJSDate(this.currTodo.data.completedAt).toLocaleString()
+      const date = DateTime.fromJSDate(this.todo.completedAt).toLocaleString()
       return date
     }
   },
@@ -108,7 +106,7 @@ export default {
     },
     close(event) {
       if (event.target == this.$refs.modal) {
-        this.$emit('close')
+        this.$store.commit('CLOSE_MODAL')
       }
     },
     addSubTodo(todo) {

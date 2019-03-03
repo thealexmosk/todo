@@ -3,7 +3,6 @@ import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
-
 class Todo {
   constructor({
     title = '',
@@ -25,55 +24,55 @@ class Todo {
     this.subTodos = [];
   }
 }
+function completeTodo(state, payload) {
+  const todo = state.todos[payload.id];
+  const complete = payload.complete;
+
+  todo.completed = complete;
+  todo.completedAt = complete ? new Date() : null;
+}
 // Todos
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: {
     todos: {},
     todoList: [],
     todoIdCounter: 0,
     editingTodo: null,
-    showModal: false,
     modalTodo: null,
   },
   mutations: {
-    ADD_TODO: (state, payload) => {
-      const newTodo = new Todo(payload);
-      const id = state.todoIdCounter++;
-      newTodo.id = id;
-
-      Vue.set(state.todos, id, newTodo);
-
-      // Push todo to global todoList or to parent subTodos
-      if (newTodo.parentTodo === null) {
-        state.todoList.push(id);
-      } else if (Number.isInteger(newTodo.parentTodo)) {
-        state.todos[newTodo.parentTodo].subTodos.push(id);
-        state.editingTodo = id;
-      }
+    CREATE_TODO: (state, payload) => {
+      Vue.set(state.todos, payload.id, payload);
+    },
+    ADD_TODO_TO_LIST: (state, id) => {
+      state.todoList.push(id);
+    },
+    ADD_TODO_TO_SUBTODOS: (state, payload) => {
+      state.todos[payload.toId].subTodos.push(payload.id);
+    },
+    INC_TODO_ID_COUNTER: (state) => {
+      state.todoIdCounter++;
     },
     EDIT_TODO: (state, payload) => {
+      if (!state.todos[payload.id]) return;
+
       const editingTodo = state.todos[payload.id];
       const newTodo = { ...editingTodo, ...payload.params};
 
-      if (!state.todos[payload.id]) return;
-
       Vue.set(state.todos, payload.id, newTodo);
     },
-    COMPLETE_TODO: (state, payload) => {
-      const todo = state.todos[payload.id];
-      const complete = payload.complete;
+    COMPLETE_TODO: (state, payload) => completeTodo(state, payload),
+    COMPLETE_SUBTODOS: (state, payload) => {
+      ;(function recSubTodosComplete(subTodos) {
+        if (subTodos.length == 0) return
 
-      // Complete todo and subTodos
-      ;(function recSubTodosComplete(todoId) {
-        const todo = state.todos[todoId];
+        subTodos.forEach(id => {
+          const subTodos = state.todos[id].subTodos;
 
-        todo.completed = complete;
-        todo.completedAt = complete ? new Date() : null;
-
-        if (todo.subTodos.length > 0) {
-          todo.subTodos.forEach(id => recSubTodosComplete(id));
-        }
-      })(payload.id);
+          completeTodo(state, {complete: payload.complete, id: id});
+          recSubTodosComplete(subTodos);
+        });
+      })(payload.subTodos);
     },
     CHECK_COMPLETE_TODOS_PARENTS: (state, {id, parentId}) => {
       const parId = id !== undefined ? state.todos[id].parentTodo : parentId;
@@ -91,19 +90,18 @@ export default new Vuex.Store({
         }
       })(parId);
     },
-    REMOVE_TODO: (state, id) => {
-      const todo = state.todos[id];
-      // Remove from todoList
+    REMOVE_TODO_FROM_LIST: (state, id) => {
       if (state.todoList.includes(id)) {
         const ind = state.todoList.indexOf(id);
 
         if (ind > -1) {
           state.todoList.splice(ind, 1);
         }
-        // state.todoList = state.todoList.filter(item => item !== id);
       }
+    },
+    REMOVE_TODO_FROM_PARENT: (state, id) => {
+      const todo = state.todos[id];
 
-      // Remove from parent
       if (todo.parentTodo !== null) {
         const ind = state.todos[todo.parentTodo].subTodos.indexOf(id);
 
@@ -111,7 +109,10 @@ export default new Vuex.Store({
           state.todos[todo.parentTodo].subTodos.splice(ind, 1);
         }
       }
-      // Remove todo & subTodos
+    },
+    REMOVE_TODO: (state, id) => {
+      const todo = state.todos[id];
+
       ;(function recRemove(todoId) {
         const todo = state.todos[todoId];
 
@@ -148,15 +149,42 @@ export default new Vuex.Store({
     UNSET_EDITING: (state) => {
       state.editingTodo = null;
     },
+    OPEN_MODAL: (state, id) => {
+      state.modalTodo = id;
+    },
+    CLOSE_MODAL: (state) => {
+      state.modalTodo = null;
+    }
   },
   actions: {
-    addTodo: (context, params) => {
-      context.commit('ADD_TODO', params);
+    createTodo: (context, params) => {
+      const newTodo = new Todo(params);
+      const id = context.state.todoIdCounter;
+      newTodo.id = id;
+
+      context.commit('INC_TODO_ID_COUNTER');
+      context.commit('CREATE_TODO', newTodo);
+
+      if (params.parentTodo === undefined) {
+        context.commit('ADD_TODO_TO_LIST', id);
+      } else if (Number.isInteger(params.parentTodo)) {
+        context.commit('ADD_TODO_TO_SUBTODOS', { id: id, toId: params.parentTodo });
+        context.commit('CHECK_COMPLETE_TODOS_PARENTS', { parentId: params.parentTodo });
+      }
     },
     editTodo: (context, todo) => {
       context.commit('EDIT_TODO', todo);
     },
     removeTodo: (context, id) => {
+      const todo = context.state.todos[id];
+
+      if (todo.parentTodo !== null) {
+        context.commit('REMOVE_TODO_FROM_PARENT', id);
+        store.commit('CHECK_COMPLETE_TODOS_PARENTS', {parentId: todo.parentTodo});
+      } else {
+        context.commit('REMOVE_TODO_FROM_LIST', id);
+      }
+
       context.commit('REMOVE_TODO', id);
     },
     removeAll: (context) => {
@@ -164,6 +192,13 @@ export default new Vuex.Store({
     },
     completeTodo: (context, params) => {
       context.commit('COMPLETE_TODO', params);
+
+      const subTodos = context.state.todos[params.id].subTodos;
+
+      if (subTodos.length > 0) {
+        context.commit('COMPLETE_SUBTODOS', {subTodos, complete: params.complete});
+      }
+
       context.commit('CHECK_COMPLETE_TODOS_PARENTS', {id: params.id});
     },
     setEditing: (context, id) => {
@@ -175,9 +210,9 @@ export default new Vuex.Store({
     changeOrder: (context, params) => {
       context.commit('CHANGE_ORDER', params);
 
-      // if (params.parent !== undefined)
-      //   context.commit('CHECK_COMPLETE_TODOS_PARENTS', {parentId: params.parent});
-    }
+      if (params.parent !== undefined)
+        context.commit('CHECK_COMPLETE_TODOS_PARENTS', {parentId: params.parent});
+    },
   },
   getters: {
     todoList: state => {
@@ -194,4 +229,6 @@ export default new Vuex.Store({
     },
   },
   plugins: [createPersistedState()]
-})
+});
+
+export default store;

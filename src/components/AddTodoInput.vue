@@ -23,7 +23,7 @@ export default {
       if (title == '')
         return;
 
-      this.$store.dispatch('addTodo', { title });
+      this.$store.dispatch('createTodo', { title });
       this.newTitle = '';
     },
   }

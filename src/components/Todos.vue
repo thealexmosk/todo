@@ -18,7 +18,7 @@
       <button type="button" @click="localClear">CLEAR</button>
       <!-- <button type="button" @click="logTodos">TODOS</button> -->
     </div>
-    <TodoModal v-if="showModal"/>
+    <TodoModal :todo="modalTodo" v-if="showModal"/>
   </div>
 </template>
 
@@ -44,7 +44,10 @@ export default {
   },
   computed: {
     showModal() {
-      return this.$store.state.modalOpen;
+      return this.$store.state.modalTodo !== null;
+    },
+    modalTodo() {
+      return this.$store.state.todos[this.$store.state.modalTodo];
     }
   },
   methods: {
