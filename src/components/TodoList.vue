@@ -83,6 +83,13 @@ export default {
         }
     }
   },
+  watch: {
+    'todoList.length': function () {
+      if (this.parent !== undefined) {
+        this.$store.commit('CHECK_COMPLETE_TODOS_PARENTS', {parentId: this.parent});
+      }
+    }
+  },
   methods: {
     isMovable(evt) {
       return (!evt.draggedContext.element.isDraggable)

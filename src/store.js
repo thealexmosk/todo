@@ -75,9 +75,9 @@ export default new Vuex.Store({
         }
       })(payload.id);
     },
-    CHECK_COMPLETE_TODOS_PARENTS: (state, id) => {
-      const parentId = state.todos[id].parentTodo;
-      if (parentId === null) return;
+    CHECK_COMPLETE_TODOS_PARENTS: (state, {id, parentId}) => {
+      const parId = id !== undefined ? state.todos[id].parentTodo : parentId;
+      if (parId === null) return;
 
       ;(function recParentComplete(todoId) {
         const todo = state.todos[todoId];
@@ -89,7 +89,7 @@ export default new Vuex.Store({
         if (todo.parentTodo !== null) {
           recParentComplete(todo.parentTodo);
         }
-      })(parentId);
+      })(parId);
     },
     REMOVE_TODO: (state, id) => {
       const todo = state.todos[id];
@@ -140,7 +140,6 @@ export default new Vuex.Store({
         const todo = state.todos[id];
 
         todo.parentTodo = params.parent !== undefined ? params.parent : null;
-        console.log('PARAMS.PARENT', params.parent)
       });
     },
     SET_EDITING: (state, id) => {
@@ -165,7 +164,7 @@ export default new Vuex.Store({
     },
     completeTodo: (context, params) => {
       context.commit('COMPLETE_TODO', params);
-      context.commit('CHECK_COMPLETE_TODOS_PARENTS', params.id);
+      context.commit('CHECK_COMPLETE_TODOS_PARENTS', {id: params.id});
     },
     setEditing: (context, id) => {
       context.commit('SET_EDITING', id);
@@ -174,8 +173,10 @@ export default new Vuex.Store({
       context.commit('UNSET_EDITING');
     },
     changeOrder: (context, params) => {
-      console.log(params);
       context.commit('CHANGE_ORDER', params);
+
+      // if (params.parent !== undefined)
+      //   context.commit('CHECK_COMPLETE_TODOS_PARENTS', {parentId: params.parent});
     }
   },
   getters: {
