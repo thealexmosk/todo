@@ -11,6 +11,16 @@
 <script>
 
 export default {
+  props: {
+    parent: {
+      type: [Number, Object],
+      default: null
+    },
+    edit: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       newTitle: '',
@@ -23,7 +33,7 @@ export default {
       if (title == '')
         return;
 
-      this.$store.dispatch('createTodo', { title });
+      this.$store.dispatch('createTodo', { title, parentTodo: this.parent, edit: this.edit});
       this.newTitle = '';
     },
   }

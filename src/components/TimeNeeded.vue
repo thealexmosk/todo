@@ -39,17 +39,16 @@ export default {
   },
   data() {
     return {
-      time: this.value,
       isEditing: false,
     }
   },
   computed: {
     timeStr() {
-      if (!this.time || this.time == 0) {
+      if (!this.value || this.value == 0) {
         return '? hours'
       }
 
-      return shortEnglishHumanizer(this.time * 60000, {units: ['h', 'm']})
+      return shortEnglishHumanizer(this.value * 60000, {units: ['h', 'm']})
     }
   },
   methods: {

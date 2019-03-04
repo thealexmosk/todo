@@ -10,8 +10,8 @@
                 {{ showSubTodos ? '-' : '+' }}
           </button>
           <label>{{ `${todo.title}` }}</label>
-          <!-- <TimeNeeded v-if="todo.timeNeeded > 0" v-model="todo.timeNeeded" @open="value => isDraggable = !value"/>
-          <DueDate v-if="todo.dueDate" v-model="todo.dueDate" @open="value => isDraggable = !value"/> -->
+          <TimeNeeded v-if="todo.timeNeeded > 0" v-model="todo.timeNeeded" @input="timeChange"  @open="value => isDraggable = !value"/>
+          <DueDate v-if="todo.dueDate" v-model="todo.dueDate" @input="dueChange"  @open="value => isDraggable = !value"/>
           <button type="button" @click="addTodo">Add</button>
           <button type="button" @click="$store.dispatch('setEditing', todo.id)">Edit</button>
           <button type="button" @click="$store.commit('OPEN_MODAL', todo.id)">More</button>
@@ -36,16 +36,16 @@
 <script>
 import TodoList from '@/components/TodoList.vue'
 import EditTodo from '@/components/EditTodo.vue'
-// import TimeNeeded from '@/components/TimeNeeded.vue'
-// import DueDate from '@/components/DueDate.vue'
+import TimeNeeded from '@/components/TimeNeeded.vue'
+import DueDate from '@/components/DueDate.vue'
 
 export default {
   name: 'TodoItem',
   components: {
     EditTodo,
-    TodoList
-    // TimeNeeded,
-    // DueDate,
+    TodoList,
+    TimeNeeded,
+    DueDate,
   },
   props: {
     todo: Object,
@@ -100,10 +100,16 @@ export default {
       this.$emit('draggableChange', val);
     },
     completeChange() {
-      this.$store.dispatch('completeTodo', {id: this.todo.id, complete: this.todo.completed})
+      this.$store.dispatch('completeTodo', {id: this.todo.id, complete: this.todo.completed});
     },
     addTodo() {
-      this.$store.dispatch('createTodo', {title: '', parentTodo: this.todo.id});
+      this.$store.dispatch('createTodo', {title: '', parentTodo: this.todo.id, edit: true});
+    },
+    timeChange(val) {
+      this.$store.commit('SET_TIME_NEEDED', {id: this.todo.id, timeNeeded: val})
+    },
+    dueChange(val) {
+      this.$store.commit('SET_DUE_DATE', {id: this.todo.id, dueDate: val})
     },
     confirmRemove() {
       if (!window.confirm('Are you sure?')) return;

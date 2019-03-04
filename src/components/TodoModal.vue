@@ -15,13 +15,13 @@
               <span @click="$store.commit('CLOSE_MODAL')">X</span>
             </div>
             <div class="modal__row">
-              <input type="checkbox" v-model="todo.completed">
+              <input type="checkbox" v-model="todo.completed" @change="completeChange">
               <span v-if="todo.completed">Completed ({{ completedDate }})</span>
               <span v-else>In progress</span>
             </div>
             <div class="modal__row">
-                <TimeNeeded v-model="todo.timeNeeded" :extended="true"/>
-                <DueDate v-model="todo.dueDate" :extended="true"/>
+                <TimeNeeded v-model="todo.timeNeeded" :extended="true" @input="timeChange"/>
+                <DueDate v-model="todo.dueDate" :extended="true" @input="dueChange"/>
             </div>
             <div class="modal__row">
               <div class="todo-btn__container">
@@ -46,7 +46,7 @@
                 <div v-else>
                   Create new subTodos
                 </div>
-                <AddTodoInput @newTodo="addSubTodo"/>
+                <AddTodoInput :parent="todo.id"/>
             </div>
             <div class="modal__row" v-if="todo.parentTodo !== null">
                 <h3 class="title">Parent Todo</h3>
@@ -114,25 +114,19 @@ export default {
     }
   },
   methods: {
-    editResult(res, val) {
-      if (res == 'store') {
-        this.currTodo.data[this.editingField] = val
-      }
-
-      this.editingField = null
-    },
     close(event) {
       if (event.target == this.$refs.modal) {
         this.$store.commit('CLOSE_MODAL')
       }
     },
-    addSubTodo(todo) {
-      this.currTodo.subTodos.push(todo)
+    timeChange(val) {
+      this.$store.commit('SET_TIME_NEEDED', {id: this.todo.id, timeNeeded: val})
     },
-  },
-  mounted() {
-    if (this.editField) {
-      this.editingField = this.editField
+    dueChange(val) {
+      this.$store.commit('SET_DUE_DATE', {id: this.todo.id, dueDate: val})
+    },
+    completeChange() {
+      this.$store.dispatch('completeTodo', {id: this.todo.id, complete: this.todo.completed})
     }
   }
 }

@@ -61,6 +61,12 @@ const store = new Vuex.Store({
 
       Vue.set(state.todos, payload.id, newTodo);
     },
+    SET_TIME_NEEDED: (state, payload) => {
+      state.todos[payload.id].timeNeeded = payload.timeNeeded;
+    },
+    SET_DUE_DATE: (state, payload) => {
+      state.todos[payload.id].dueDate = payload.dueDate;
+    },
     COMPLETE_TODO: (state, payload) => completeTodo(state, payload),
     COMPLETE_SUBTODOS: (state, payload) => {
       ;(function recSubTodosComplete(subTodos) {
@@ -165,14 +171,16 @@ const store = new Vuex.Store({
       context.commit('INC_TODO_ID_COUNTER');
       context.commit('CREATE_TODO', newTodo);
 
-      if (params.parentTodo === undefined) {
+      if (params.parentTodo === null) {
         context.commit('ADD_TODO_TO_LIST', id);
       } else if (Number.isInteger(params.parentTodo)) {
         context.commit('ADD_TODO_TO_SUBTODOS', { id: id, toId: params.parentTodo });
         context.commit('CHECK_COMPLETE_TODOS_PARENTS', { parentId: params.parentTodo });
       }
 
-      context.commit('SET_EDITING', id);
+      if (params.edit) {
+        context.commit('SET_EDITING', id);
+      }
     },
     editTodo: (context, todo) => {
       context.commit('EDIT_TODO', todo);

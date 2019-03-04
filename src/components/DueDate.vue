@@ -60,7 +60,7 @@ export default {
   },
   computed: {
     dateStr() {
-      const date = this.date || 'Due ?'
+      const date = this.value || 'Due ?'
       const diffMs = new Date(date) - this.now
 
       if (diffMs < 0)
