@@ -12,7 +12,7 @@
           <label>{{ `${todo.title}` }}</label>
           <TimeNeeded v-if="todo.timeNeeded > 0" v-model="todo.timeNeeded" @input="timeChange"  @open="value => isDraggable = !value"/>
           <DueDate v-if="todo.dueDate" v-model="todo.dueDate" @input="dueChange"  @open="value => isDraggable = !value"/>
-          <button type="button" @click="addTodo">Add</button>
+          <button type="button" @click="addTodo" v-if="nested">Add</button>
           <button type="button" @click="$store.dispatch('setEditing', todo.id)">Edit</button>
           <button type="button" @click="$store.commit('OPEN_MODAL', todo.id)">More</button>
           <button type="button" @click="confirmRemove">X</button>

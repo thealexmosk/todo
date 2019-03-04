@@ -39,6 +39,7 @@ export default {
   },
   data() {
     return {
+      time: this.value,
       isEditing: false,
     }
   },
