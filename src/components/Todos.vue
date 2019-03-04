@@ -2,17 +2,12 @@
   <div class="todo__list">
     <h3>TODO List</h3>
     <AddTodoInput/>
-    <div class="">
-      <div v-for="todo in $store.state.todos">
-        {{ todo }}
-      </div>
-    </div>
     <TodoList :todos="$store.getters.todoList" :filter="filter"/>
-    <!-- <div class="todo__filters">
+    <div class="todo__filters">
       <button type="button" @click="filter = 'all'">All</button>
       <button type="button" @click="filter = 'active'">Active</button>
       <button type="button" @click="filter = 'completed'">Completed</button>
-    </div> -->
+    </div>
     <div class="todo__control">
       <button type="button" @click="localClear">CLEAR</button>
     </div>
@@ -26,6 +21,38 @@ import AddTodoInput from '@/components/AddTodoInput.vue'
 import TodoModal from '@/components/TodoModal.vue'
 import Vue from 'vue'
 
+Vue.prototype.$todoFilters = {
+  all(todos) {
+    return [...todos].sort( (x, y) => {
+      const xCompl = x.completed
+      const yCompl = y.completed
+
+      if (!xCompl && !yCompl) {
+        return 0
+      } else if (xCompl && !yCompl) {
+        return 1
+      } else if (yCompl && !xCompl) {
+        return -1
+      } else if (xCompl && yCompl) {
+        const xTime = new Date(x.completedAt).getTime()
+        const yTime = new Date(y.completedAt).getTime()
+
+        return xTime == yTime ?
+          0 :
+            xTime < yTime ?
+              1 :
+              -1
+        }
+      })
+  },
+  active(todos) {
+    return todos.filter( todo => !todo.completed)
+  },
+  completed(todos) {
+    return todos.filter( todo => todo.completed)
+  }
+}
+
 // Vue
 export default {
   name: 'Todos',
@@ -36,7 +63,6 @@ export default {
   },
   data() {
     return {
-      // todos: todoStorage.getTodos(),
       filter: 'all'
     }
   },
@@ -49,21 +75,6 @@ export default {
     }
   },
   methods: {
-    // openModal(obj) {
-    //   if (obj.editField) {
-    //     this.modalTodo = obj.todo;
-    //     this.editField = obj.editField;
-    //   } else {
-    //     this.modalTodo = obj;
-    //   }
-    //
-    //   this.showModal = true;
-    // },
-    // closeModal() {
-    //   this.modalTodo = null;
-    //   this.editField = '';
-    //   this.showModal = false;
-    // },
     localClear() {
       this.$store.commit('REMOVE_ALL');
       localStorage.clear();
