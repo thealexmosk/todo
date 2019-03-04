@@ -14,9 +14,7 @@
       <button type="button" @click="filter = 'completed'">Completed</button>
     </div> -->
     <div class="todo__control">
-      <!-- <button type="button" @click="saveTodoStorage">SAVE</button> -->
       <button type="button" @click="localClear">CLEAR</button>
-      <!-- <button type="button" @click="logTodos">TODOS</button> -->
     </div>
     <TodoModal :todo="modalTodo" v-if="showModal"/>
   </div>
@@ -67,6 +65,7 @@ export default {
     //   this.showModal = false;
     // },
     localClear() {
+      this.$store.commit('REMOVE_ALL');
       localStorage.clear();
     },
     logTodos() {
