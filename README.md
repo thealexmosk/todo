@@ -1,5 +1,8 @@
-# Vue.js To-Do manager
+## Vue.js To-Do manager
 
-### A simple reactive To-Do manager with lots of functionality
-
-### Saves and gets the data from the localStorage in your browser
+### Features
+- Add a subtodo to each todo (up to infinite)
+- Automated todo completion 
+- Option dueDate and track how much time left
+- Option time needed tto completed the task
+- Filters and more...
