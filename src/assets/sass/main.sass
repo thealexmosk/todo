@@ -1,0 +1,31 @@
+@import '_fonts.sass'
+
+*
+  box-sizing: border-box
+
+html, body
+  height: 100%
+
+body
+  margin: 0
+  font-family: 'Open Sans', sans-serif
+
+.fade-enter-active, .fade-leave-active
+  transition: opacity .5s
+.fade-enter, .fade-leave-to
+  opacity: 0
+
+
+.time-field
+  display: inline-block
+  &--extended:not(:last-child)
+    margin-right: 20px
+  &__label
+    text-align: left
+    font-size: 13px
+    margin-bottom: 5px
+  &__val
+    display: inline-block
+    padding: 5px 10px
+    color: rgba(255, 255, 255, 0.9)
+    border-radius: 5px

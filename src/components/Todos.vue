@@ -1,15 +1,36 @@
 <template lang="html">
-  <div class="todo__list">
-    <h3>TODO List</h3>
-    <AddTodoInput/>
-    <TodoList :todos="$store.getters.todoList" :filter="filter"/>
-    <div class="todo__filters">
-      <button type="button" @click="filter = 'all'">All</button>
-      <button type="button" @click="filter = 'active'">Active</button>
-      <button type="button" @click="filter = 'completed'">Completed</button>
+  <div class="todos">
+    <div class="todos__block todos__intro">
+      <h1 class="title">
+        <div class="title__pre">
+          An awesome
+        </div>
+        <div class="title__main">
+          Task Manager
+        </div>
+      </h1>
+      <AddTodoInput class="add-todo"/>
     </div>
-    <div class="todo__control">
-      <button type="button" @click="localClear">CLEAR</button>
+    <div class="todos__block todos__main">
+      <div class="todos__list">
+        <div class="list__wrapper">
+          <div class="list">
+            <TodoList :todos="$store.getters.todoList" :filter="filter"/>
+          </div>
+        </div>
+        <div class="controls">
+          <div class="controls__container">
+            <div class="filters">
+              <button type="button" @click="filter = 'all'">All</button>
+              <button type="button" @click="filter = 'active'">Active</button>
+              <button type="button" @click="filter = 'completed'">Completed</button>
+            </div>
+            <div class="clear">
+              <div class="clear__button" @click="localClear">Clear all</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <TodoModal :todo="modalTodo" v-if="showModal"/>
   </div>
@@ -76,6 +97,8 @@ export default {
   },
   methods: {
     localClear() {
+      if (!confirm('Are you sure?')) return
+
       this.$store.commit('REMOVE_ALL');
       localStorage.clear();
     },
@@ -108,28 +131,79 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+  .todos
+    width: 100%
+    height: 100%
+    text-align: center
+    background-image: url('~@/assets/img/day.jpg')
+    background-size: cover
+    &__block
+      display: flex
+      flex-direction: column
+      justify-content: space-around
+    &__intro
+      height: 30%
+    &__main
+      height: 70%
+    &__list
+      width: 80%
+      height: 90%
+      display: flex
+      flex-direction: column
+      justify-content: space-around
+      margin: 0 auto
+      padding: 20px 20px 0 20px
+      background-color: rgba(0, 0, 0, 0.25)
+      border-radius: 10px
+
+  .title
+    padding-top: 10px
+    margin: 0
+    color: rgb(62, 64, 103)
+    &__pre
+      font-size: 24px
+    &__main
+      font-size: 42px
+      line-height: 40px
+
+  .controls
+    height: 50px
+    width: 100%
+    &__container
+      width: 100%
+      height: 100%
+      position: relative
+      display: flex
+      justify-content: center
+      align-items: center
+
+  .clear
+    position: absolute
+    right: 0
+    &__button
+      color: rgba(255,255,255, 0.7)
+      border-bottom: 1px solid rgba(255,255,255, 0.7)
+      font-size: 16px
+      cursor: pointer
+
+  .filters
+    position: absolute
+    margin: 0 auto
+
   .list
+    position: absolute
+    top: 0
+    bottom: 0
+    left: 0
+    right: -17px
+    margin: 0
     text-align: left
+    overflow-y: scroll
+    overflow-x: hidden
+    &__wrapper
+      position: relative
+      height: 100%
+      width: 100%
+      overflow: hidden
 
-  .todo
-    &__filters
-      margin-bottom: 10px
-
-</style>
-
-<style lang="sass">
-
-.time-field
-  display: inline-block
-  &--extended:not(:last-child)
-    margin-right: 20px
-  &__label
-    text-align: left
-    font-size: 13px
-    margin-bottom: 5px
-  &__val
-    display: inline-block
-    padding: 5px 10px
-    color: rgba(255, 255, 255, 0.9)
-    border-radius: 5px
 </style>

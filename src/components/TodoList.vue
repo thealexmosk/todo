@@ -11,7 +11,7 @@
         :key="todo.id"
         :todo="todo"
         :nested="nested"
-        :class="`todo__num-${index}`"
+        :class="[{'todo--main' : parent === undefined}, `todo__num-${index}`]"
         @draggableChange="$emit('draggableChange', $event)"/>
     </draggable>
   </ul>
@@ -64,5 +64,8 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
+<style lang="sass" scoped>
+.list
+  list-style: none
+
 </style>

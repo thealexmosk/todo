@@ -1,10 +1,12 @@
 <template lang="html">
-  <div class="todo__main-input">
-    <input placeholder="New To-Do"
+  <div>
+    <input
+      placeholder="Add a todo"
       type="text"
       required="required"
-      v-model.trim="newTitle">
-    <button type="button" @click="addTodo">Add</button>
+      v-model.trim="newTitle"
+      @keyup.enter="addTodo">
+    <!-- <button type="button" @click="addTodo">Add</button> -->
   </div>
 </template>
 
@@ -40,5 +42,16 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
+<style lang="sass" scoped>
+  input
+    outline: none
+    border: none
+    border-radius: 10px
+    padding: 10px 15px
+    font-size: 16px
+    background-color: rgb(0, 0, 0)
+    color: rgb(255, 255, 255)
+    opacity: 0.2
+    &::placeholder
+      color: rgb(255, 255, 255)
 </style>

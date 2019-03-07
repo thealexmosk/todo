@@ -1,29 +1,31 @@
 <template lang="html">
   <li class="todo"
     :class="{'todo--draggable': isDraggable, 'todo--completed': todo.completed}">
-      <input type="checkbox" v-model="todo.completed" @change="completeChange">
-      <div class="normal" v-if="!isEditing">
-          <button
-            type="button"
-            @click="showSubTodos = !showSubTodos"
-            v-if="nested && hasSubTodosComputed">
-                {{ showSubTodos ? '-' : '+' }}
-          </button>
-          <label>{{ `${todo.title}` }}</label>
-          <TimeNeeded v-if="todo.timeNeeded > 0" v-model="todo.timeNeeded" @input="timeChange"  @open="value => isDraggable = !value"/>
-          <DueDate v-if="todo.dueDate" v-model="todo.dueDate" @input="dueChange"  @open="value => isDraggable = !value"/>
-          <button type="button" @click="addTodo" v-if="nested">Add</button>
-          <button type="button" @click="$store.dispatch('setEditing', todo.id)">Edit</button>
-          <button type="button" @click="$store.commit('OPEN_MODAL', todo.id)">More</button>
-          <button type="button" @click="confirmRemove">X</button>
+      <div class="todo__item">
+        <input type="checkbox" v-model="todo.completed" @change="completeChange">
+        <div class="normal" v-if="!isEditing">
+            <button
+              type="button"
+              @click="showSubTodos = !showSubTodos"
+              v-if="nested && hasSubTodosComputed">
+                  {{ showSubTodos ? '-' : '+' }}
+            </button>
+            <label>{{ `${todo.title}` }}</label>
+            <TimeNeeded v-if="todo.timeNeeded > 0" v-model="todo.timeNeeded" @input="timeChange"  @open="value => isDraggable = !value"/>
+            <DueDate v-if="todo.dueDate" v-model="todo.dueDate" @input="dueChange"  @open="value => isDraggable = !value"/>
+            <button type="button" @click="addTodo" v-if="nested">Add</button>
+            <button type="button" @click="$store.dispatch('setEditing', todo.id)">Edit</button>
+            <button type="button" @click="$store.commit('OPEN_MODAL', todo.id)">More</button>
+            <button type="button" @click="confirmRemove">X</button>
+        </div>
+        <EditTodo
+          v-if="isEditing"
+          input="title"
+          :todoId="todo.id"
+          :prop="todo.title">
+            <button type="button">More</button>
+        </EditTodo>
       </div>
-      <EditTodo
-        v-if="isEditing"
-        input="title"
-        :todoId="todo.id"
-        :prop="todo.title">
-          <button type="button">More</button>
-      </EditTodo>
       <TodoList
         v-show="nested && showSubTodos"
         :parent="todo.id"
@@ -124,6 +126,18 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+  .todo
+    font-weight: normal
+    color: rgb(62, 64, 103)
+    &__item
+      display: inline-block
+      padding: 10px 15px
+      background-color: rgb(221, 223, 241)
+      border-radius: 8px
+      margin-bottom: 10px
+    &--main
+      font-weight: bold
+
   .normal
     display: inline-block
   .edit
