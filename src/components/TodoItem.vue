@@ -4,12 +4,18 @@
       <div class="todo__item">
         <input type="checkbox" v-model="todo.completed" @change="completeChange">
         <div class="normal" v-if="!isEditing">
-            <button
+            <!-- <button
               type="button"
               @click="showSubTodos = !showSubTodos"
               v-if="nested && hasSubTodosComputed">
                   {{ showSubTodos ? '-' : '+' }}
-            </button>
+            </button> -->
+
+            <svg class="icon"
+              v-if="nested && hasSubTodosComputed"
+              @click="showSubTodos = !showSubTodos">
+              <use xlink:href="#chevron-down" :transform="!showSubTodos ? 'rotate(-90 10 10)' : false"/>
+            </svg>
             <label>{{ `${todo.title}` }}</label>
             <TimeNeeded v-if="todo.timeNeeded > 0" v-model="todo.timeNeeded" @input="timeChange"  @open="value => isDraggable = !value"/>
             <DueDate v-if="todo.dueDate" v-model="todo.dueDate" @input="dueChange"  @open="value => isDraggable = !value"/>
@@ -40,6 +46,8 @@ import TodoList from '@/components/TodoList.vue'
 import EditTodo from '@/components/EditTodo.vue'
 import TimeNeeded from '@/components/TimeNeeded.vue'
 import DueDate from '@/components/DueDate.vue'
+
+import chewronDown from '@/assets/icons/svg/chevron-down.svg'
 
 export default {
   name: 'TodoItem',
@@ -134,9 +142,16 @@ export default {
       padding: 10px 15px
       background-color: rgb(221, 223, 241)
       border-radius: 8px
-      margin-bottom: 10px
+      margin-bottom: 8px
     &--main
       font-weight: bold
+    &--completed
+      opacity: 0.5
+
+  .icon
+    width: 20px
+    height: 20px
+    fill: rgb(62, 64, 103)
 
   .normal
     display: inline-block
