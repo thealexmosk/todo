@@ -176,7 +176,7 @@ export default {
       max-height: 80%
       padding: 30px
       text-align: left
-      background-color: rgba(206, 218, 241, 1)
+      background: linear-gradient(rgb(232, 232, 241), rgb(200, 208, 231))
       border-radius: 10px
       overflow: hidden
     &__row
@@ -191,7 +191,7 @@ export default {
 
   .title
     display: inline-block
-    margin: 0 5px 0 0
+    margin: 0 5px 5px 0
     max-width: 90%
     text-overflow: ellipsis
     overflow: hidden

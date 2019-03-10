@@ -12,7 +12,7 @@
         :key="todo.id"
         :todo="todo"
         :nested="nested"
-        :class="[{'todo--main' : parent === undefined}, `todo__num-${index}`]"
+        :class="`todo__num-${index}`"
         @draggableChange="$emit('draggableChange', $event)"/>
     </draggable>
   </ul>

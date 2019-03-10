@@ -12,6 +12,7 @@
         </div>
         <div class="todo__vals normal" v-if="!isEditing">
             <span class="todo__title"
+              :class="{'todo__title--main' : todo.parentTodo === null}"
               @dblclick="$store.dispatch('setEditing', todo.id)"
               :title="todo.title">
                 {{ todo.title }}
@@ -65,6 +66,7 @@
         :parent="todo.id"
         :nested="nested"
         :todos="$store.getters.subTodos(todo.id)"
+        style="padding-left: 25px"
         @draggableChange="changeDraggable"/>
   </li>
 </template>
@@ -99,7 +101,7 @@ export default {
   data() {
     return {
       isDraggable: !(this.$store.state.editingTodo == this.todo.id),
-      showSubTodos: !this.todo.completed,
+      showSubTodos: !this.todo.completed || this.todo.subTodos.length == 0,
     }
   },
   computed: {
@@ -162,7 +164,7 @@ export default {
       display: inline-flex
       align-items: center
       margin-bottom: 3px
-      height: 50px
+      height: 45px
       padding: 10px 15px
       background-color: rgb(221, 223, 241)
       border-radius: 8px
@@ -176,6 +178,8 @@ export default {
       text-overflow: ellipsis
       overflow: hidden
       white-space: nowrap
+      &--main
+        font-weight: bold
     &__vals
       display: flex
       align-items: center

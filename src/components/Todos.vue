@@ -26,7 +26,7 @@
         <div class="todos__list">
           <div class="list__wrapper">
             <div class="list">
-              <TodoList :todos="$store.getters.todoList" :filter="filter"/>
+              <TodoList :todos="todoList" :filter="filter"/>
             </div>
           </div>
           <div class="controls">
@@ -120,7 +120,10 @@ export default {
     },
     modalTodo() {
       return this.$store.state.todos[this.$store.state.modalTodo];
-    }
+    },
+    todoList() {
+      return this.$store.getters.todoList
+    },
   },
   methods: {
     localClear() {
@@ -153,6 +156,38 @@ export default {
 
       this.todos.splice(todoId, 1);
     },
+  },
+  beforeCreate() {
+    (function initStore() {
+      if (this.$store.state.todoList.length > 0) return;
+
+      const due = new Date() + 60*60*100;
+      const makeTodoList = {title: 'Create your awesome todo list', parentTodo: null, dueDate: due.toString()};
+      this.$store.dispatch('createTodo', makeTodoList);
+      const mainId = 0;
+
+      const figureOut = {title: 'Figure out how everything works', parentTodo: mainId, timeNeeded: 3};
+      this.$store.dispatch('createTodo', figureOut);
+
+      const subTodos = {title: 'You can create unlimited subtodos', parentTodo: mainId};
+      this.$store.dispatch('createTodo', subTodos);
+      const subTodosId = 2;
+
+      const arrow = {title: 'Click the arrow to hide', parentTodo: subTodosId};
+      this.$store.dispatch('createTodo', arrow);
+
+      const completed = {title: 'Completed todos are auto-sorted', parentTodo: subTodosId};
+      this.$store.dispatch('createTodo', completed);
+      this.$store.dispatch('completeTodo', {id: 4, complete: true});
+
+      const drag = {title: 'You can also drag and drop todos', parentTodo: mainId};
+      this.$store.dispatch('createTodo', drag);
+
+      const save = {title: 'The data is auto-saved in your browser', parentTodo: mainId};
+      this.$store.dispatch('createTodo', save);
+      this.$store.dispatch('completeTodo', {id: 6, complete: true});
+
+    }).call(this);
   }
 }
 </script>
@@ -236,6 +271,7 @@ export default {
         color: rgba(221, 223, 241, 0.8)
 
   .list
+    padding-left: 10px
     position: absolute
     top: 0
     bottom: -17px
