@@ -161,31 +161,26 @@ export default {
     (function initStore() {
       if (this.$store.state.todoList.length > 0) return;
 
-      const due = new Date() + 60*60*100;
-      const makeTodoList = {title: 'Create your awesome todo list', parentTodo: null, dueDate: due.toString()};
+      const makeTodoList = {title: 'Figure out how everything works', parentTodo: null, timeNeeded: 3};
       this.$store.dispatch('createTodo', makeTodoList);
       const mainId = 0;
 
-      const figureOut = {title: 'Figure out how everything works', parentTodo: mainId, timeNeeded: 3};
-      this.$store.dispatch('createTodo', figureOut);
-
       const subTodos = {title: 'You can create unlimited subtodos', parentTodo: mainId};
       this.$store.dispatch('createTodo', subTodos);
-      const subTodosId = 2;
 
-      const arrow = {title: 'Click the arrow to hide', parentTodo: subTodosId};
+      const arrow = {title: 'Click the buttons', parentTodo: 1};
       this.$store.dispatch('createTodo', arrow);
 
-      const completed = {title: 'Completed todos are auto-sorted', parentTodo: subTodosId};
+      const completed = {title: 'Completed todos are auto-sorted', parentTodo: 1};
       this.$store.dispatch('createTodo', completed);
-      this.$store.dispatch('completeTodo', {id: 4, complete: true});
+      this.$store.dispatch('completeTodo', {id: 3, complete: true});
 
       const drag = {title: 'You can also drag and drop todos', parentTodo: mainId};
       this.$store.dispatch('createTodo', drag);
 
       const save = {title: 'The data is auto-saved in your browser', parentTodo: mainId};
       this.$store.dispatch('createTodo', save);
-      this.$store.dispatch('completeTodo', {id: 6, complete: true});
+      this.$store.dispatch('completeTodo', {id: 5, complete: true});
 
     }).call(this);
   }

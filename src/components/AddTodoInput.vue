@@ -52,6 +52,7 @@ export default {
     background-color: rgb(0, 0, 0)
     color: rgb(255, 255, 255)
     opacity: 0.2
+    font-family: 'Open Sans', sans-serif
     &::placeholder
       color: rgb(255, 255, 255)
 </style>
