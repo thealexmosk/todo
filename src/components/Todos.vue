@@ -168,7 +168,7 @@ export default {
       const subTodos = {title: 'You can create unlimited subtodos', parentTodo: mainId};
       this.$store.dispatch('createTodo', subTodos);
 
-      const arrow = {title: 'Click the buttons', parentTodo: 1};
+      const arrow = {title: 'Check out how buttons works', parentTodo: 1};
       this.$store.dispatch('createTodo', arrow);
 
       const completed = {title: 'Completed todos are auto-sorted', parentTodo: 1};
