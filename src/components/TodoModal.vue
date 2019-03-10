@@ -5,7 +5,7 @@
             <div class="modal__row modal__main">
               <div class="modal__title">
                 <div class="todo-btn__container" v-if="!isEditing || editingField != 'title'">
-                  <h2 class="title"
+                  <h2 class="title modal__field-name"
                     @dblclick="isEditing = 'title'">
                     {{ todo.title }}
                   </h2>
@@ -40,7 +40,7 @@
             </div>
             <div class="modal__row">
               <div class="todo-btn__container">
-                <h3 class="title">Description</h3>
+                <h3 class="modal__field-name">Description</h3>
                 <div class="modal-btn btn"
                   v-if="!isEditing || editingField != 'description'"
                   @click="isEditing = 'description'">
@@ -59,7 +59,7 @@
                 v-if="isEditing && editingField == 'description'"/>
             </div>
             <div class="modal__row">
-                <h3 class="title">Child todos</h3>
+                <h3 class="modal__field-name">Child todos</h3>
                 <TodoList
                   v-if="true"
                   :todos="$store.getters.subTodos(todo.id)"
@@ -70,7 +70,7 @@
                 <AddTodoInput :parent="todo.id"/>
             </div>
             <div class="modal__row" v-if="todo.parentTodo !== null">
-                <h3 class="title">Parent Todo</h3>
+                <h3 class="modal__field-name">Parent Todo</h3>
                 <div class="todo-btn__container">
                   <TodoItem
                     :todo="$store.getters.todoParent(todo.id)"
@@ -188,10 +188,12 @@ export default {
       align-items: center
     &__title
       overflow: hidden
+      width: 100%
+    &__field-name
+      display: inline-block
+      margin: 0 5px 5px 0
 
   .title
-    display: inline-block
-    margin: 0 5px 5px 0
     max-width: 90%
     text-overflow: ellipsis
     overflow: hidden
