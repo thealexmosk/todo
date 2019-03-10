@@ -4,10 +4,20 @@
       Time Needed
     </div>
     <div class="todo-btn__container" @dblclick="openModal">
-      <div class="time-field__val time-needed">
-        <span>{{ timeStr }}</span>
+      <div class="time-field__main time-needed">
+        <svg class="icon time-field__icon">
+          <use xlink:href="#clock"/>
+        </svg>
+        <span class="time-field__val">{{ timeStr }}</span>
       </div>
-      <TodoButton type="edit" @click.native="isEditing = true" v-if="extended"/>
+      <div class="time-btn btn"
+        @click="isEditing = true"
+        v-if="extended">
+        <svg class="icon icon-edit btn__icon"
+          @click="isEditing = 'title'">
+          <use xlink:href="#edit"/>
+        </svg>
+      </div>
       <TimeNeededModal v-if="isEditing" @close="closeModal" v-model="time" @input="$emit('input', time)"/>
     </div>
   </div>
@@ -17,6 +27,9 @@
 import TodoButton from '@/components/TodoButton.vue'
 import TimeNeededModal from '@/components/TimeNeededModal.vue'
 import humanizeDuration from 'humanize-duration'
+
+import clock from '@/assets/icons/svg/clock.svg'
+import edit from '@/assets/icons/svg/edit.svg'
 
 const shortEnglishHumanizer = humanizeDuration.humanizer({
   language: 'shortEn',
@@ -67,5 +80,7 @@ export default {
 
 <style lang="sass" scoped>
   .time-needed
-    background-color: rgba(45, 149, 191, 1)
+    background-color: rgb(62, 64, 103)
+  .time-btn
+    margin-left: 5px
 </style>

@@ -2,17 +2,32 @@
   <transition name="fade">
     <div class="modal__wrapper" @mousedown="close" ref="modal">
         <div class="modal__container">
-            <div class="modal__row modal__title">
-              <div class="todo-btn__container" v-if="!isEditing || editingField != 'title'">
-                <h2 class="title">{{ todo.title }}</h2>
-                <TodoButton type="edit" @click.native="isEditing = 'title'"/>
+            <div class="modal__row modal__main">
+              <div class="modal__title">
+                <div class="todo-btn__container" v-if="!isEditing || editingField != 'title'">
+                  <h2 class="title"
+                    @dblclick="isEditing = 'title'">
+                    {{ todo.title }}
+                  </h2>
+                  <div class="modal-btn btn">
+                    <svg class="icon icon-edit btn__icon"
+                      @click="isEditing = 'title'">
+                      <use xlink:href="#edit"/>
+                    </svg>
+                  </div>
+                  <!-- <TodoButton type="edit" @click.native="isEditing = 'title'"/> -->
+                </div>
+                <EditTodo
+                  :prop="todo.title"
+                  :input='editingField'
+                  :todoId="todo.id"
+                  v-if="isEditing && editingField == 'title'"/>
               </div>
-              <EditTodo
-                :prop="todo.title"
-                :input='editingField'
-                :todoId="todo.id"
-                v-if="isEditing && editingField == 'title'"/>
-              <span @click="$store.commit('CLOSE_MODAL')">X</span>
+              <div class="modal__close modal-btn btn" @click="$store.commit('CLOSE_MODAL')">
+                <svg class="icon icon-close btn__icon">
+                  <use xlink:href="#cross"/>
+                </svg>
+              </div>
             </div>
             <div class="modal__row">
               <input type="checkbox" v-model="todo.completed" @change="completeChange">
@@ -26,9 +41,15 @@
             <div class="modal__row">
               <div class="todo-btn__container">
                 <h3 class="title">Description</h3>
-                <TodoButton type="edit" v-if="!isEditing || editingField != 'description'"  @click.native="isEditing = 'description'"/>
+                <div class="modal-btn btn"
+                  v-if="!isEditing || editingField != 'description'"
+                  @click="isEditing = 'description'">
+                  <svg class="icon icon-edit btn__icon">
+                    <use xlink:href="#edit"/>
+                  </svg>
+                </div>
               </div>
-              <div v-if="!isEditing || editingField != 'description'">
+              <div class="description" v-if="!isEditing || editingField != 'description'">
                 {{ todo.description || 'Add a description' }}
               </div>
               <EditTodo
@@ -71,6 +92,9 @@ import EditTodo from '@/components/EditTodo.vue'
 import AddTodoInput from '@/components/AddTodoInput.vue'
 import { DateTime } from 'luxon'
 import Vue from 'vue'
+
+import edit from '@/assets/icons/svg/edit.svg'
+import close from '@/assets/icons/svg/cross.svg'
 
 export default {
   name: 'TodoModal',
@@ -149,16 +173,31 @@ export default {
       width: 80%
       max-width: 700px
       min-width: 250px
+      max-height: 80%
       padding: 30px
       text-align: left
-      background-color: rgba(255, 255, 255, 1)
+      background-color: rgba(206, 218, 241, 1)
       border-radius: 10px
+      overflow: hidden
     &__row
       margin-bottom: 20px
-    &__title
+    &__main
+      height: 40px
       display: flex
       justify-content: space-between
+      align-items: center
+    &__title
+      overflow: hidden
+
   .title
     display: inline-block
-    margin: 0
+    margin: 0 5px 0 0
+    max-width: 90%
+    text-overflow: ellipsis
+    overflow: hidden
+    white-space: nowrap
+
+  .icon-close
+    width: 25px
+    height: 25px
 </style>

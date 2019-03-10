@@ -1,35 +1,63 @@
 <template lang="html">
   <li class="todo"
     :class="{'todo--draggable': isDraggable, 'todo--completed': todo.completed}">
-      <div class="todo__item">
+      <div class="todo__item" :class="{'todo--has-subtodos' : hasSubTodos, 'todo--not-nested' : !nested}">
         <input type="checkbox" v-model="todo.completed" @change="completeChange">
-        <div class="normal" v-if="!isEditing">
-            <!-- <button
-              type="button"
-              @click="showSubTodos = !showSubTodos"
-              v-if="nested && hasSubTodosComputed">
-                  {{ showSubTodos ? '-' : '+' }}
-            </button> -->
+        <div class="show-sub-todos"
+          v-if="nested && hasSubTodos"
+          @click="showSubTodos = !showSubTodos">
+          <svg class="icon icon-chevron-down">
+            <use xlink:href="#chevron-down" :transform="!showSubTodos ? 'rotate(-90 10 10)' : false"/>
+          </svg>
+        </div>
+        <div class="todo__vals normal" v-if="!isEditing">
+            <span class="todo__title"
+              @dblclick="$store.dispatch('setEditing', todo.id)"
+              :title="todo.title">
+                {{ todo.title }}
+            </span>
 
-            <svg class="icon"
-              v-if="nested && hasSubTodosComputed"
-              @click="showSubTodos = !showSubTodos">
-              <use xlink:href="#chevron-down" :transform="!showSubTodos ? 'rotate(-90 10 10)' : false"/>
-            </svg>
-            <label>{{ `${todo.title}` }}</label>
             <TimeNeeded v-if="todo.timeNeeded > 0" v-model="todo.timeNeeded" @input="timeChange"  @open="value => isDraggable = !value"/>
+
             <DueDate v-if="todo.dueDate" v-model="todo.dueDate" @input="dueChange"  @open="value => isDraggable = !value"/>
-            <button type="button" @click="addTodo" v-if="nested">Add</button>
-            <button type="button" @click="$store.dispatch('setEditing', todo.id)">Edit</button>
-            <button type="button" @click="$store.commit('OPEN_MODAL', todo.id)">More</button>
-            <button type="button" @click="confirmRemove">X</button>
+
+            <div class="controls">
+              <div class="controls__btn btn"
+                @click="$store.commit('OPEN_MODAL', todo.id)">
+                <svg class="icon icon-documents">
+                  <use xlink:href="#documents"/>
+                </svg>
+              </div>
+
+              <div class="controls__btn btn"
+                @click="addTodo"
+                v-if="nested">
+                <svg class="icon icon-add">
+                  <use xlink:href="#add-to-list"/>
+                </svg>
+              </div>
+
+              <div class="controls__btn btn"
+                @click="$store.dispatch('setEditing', todo.id)">
+                <svg class="icon icon-edit">
+                  <use xlink:href="#edit"/>
+                </svg>
+              </div>
+
+              <div class="controls__btn btn"
+                @click="confirmRemove">
+                <svg class="icon icon-remove">
+                  <use xlink:href="#cross"/>
+                </svg>
+              </div>
+            </div>
         </div>
         <EditTodo
+          class="todo__vals"
           v-if="isEditing"
           input="title"
           :todoId="todo.id"
           :prop="todo.title">
-            <button type="button">More</button>
         </EditTodo>
       </div>
       <TodoList
@@ -48,6 +76,10 @@ import TimeNeeded from '@/components/TimeNeeded.vue'
 import DueDate from '@/components/DueDate.vue'
 
 import chewronDown from '@/assets/icons/svg/chevron-down.svg'
+import documents from '@/assets/icons/svg/documents.svg'
+import addToList from '@/assets/icons/svg/add-to-list.svg'
+import edit from '@/assets/icons/svg/edit.svg'
+import remove from '@/assets/icons/svg/cross.svg'
 
 export default {
   name: 'TodoItem',
@@ -83,21 +115,9 @@ export default {
     subTodos() {
       return this.$store.getters.subTodos(this.todo.id);
     },
-    hasSubTodosComputed() {
+    hasSubTodos() {
       return this.todo.subTodos.length > 0;
     },
-    time() {
-      if ( !this.hasSubTodos() ) {
-        return this.todo.timeNeeded;
-      }
-
-      const hasTime = this.todo.subTodos.every( todo => !isNaN(todo.timeNeeded) && todo.timeNeeded>0);
-
-      if (!hasTime)
-        return '';
-
-      return this.todo.subTodos.reduce( (acc, todo) => acc + parseFloat(todo.timeNeeded), 0);
-    }
   },
   watch: {
     isEditing(val) {
@@ -137,24 +157,49 @@ export default {
   .todo
     font-weight: normal
     color: rgb(62, 64, 103)
+    transition: opacity 0.5s ease
     &__item
-      display: inline-block
+      display: inline-flex
+      align-items: center
+      margin-bottom: 3px
+      height: 50px
       padding: 10px 15px
       background-color: rgb(221, 223, 241)
       border-radius: 8px
-      margin-bottom: 8px
+      cursor: default
+      &:hover
+        .controls
+          opacity: 1
+    &__title
+      margin-right: 5px
+      max-width: 300px
+      text-overflow: ellipsis
+      overflow: hidden
+      white-space: nowrap
+    &__vals
+      display: flex
+      align-items: center
     &--main
       font-weight: bold
     &--completed
       opacity: 0.5
+    &--has-subtodos
+      margin-bottom: 8px
+    &--not-nested
+      margin-bottom: 8px
+
+  .controls
+    opacity: 0.4
+    transition: opacity 0.5s ease
 
   .icon
+    &-chevron-down
+      width: 20px
+      height: 20px
+
+  .show-sub-todos
+    display: inline-block
     width: 20px
     height: 20px
-    fill: rgb(62, 64, 103)
 
-  .normal
-    display: inline-block
-  .edit
-    display: inline-block
 </style>

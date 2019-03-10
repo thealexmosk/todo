@@ -2,6 +2,7 @@
   <div class="edit">
       <input
         placeholder="Add a title"
+        class="edit__field"
         type="text"
         v-if="input == 'title'"
         v-model.trim="editProp"
@@ -9,21 +10,38 @@
         @blur="onEditBlur"
         @keyup.enter="finishEditTodo"
         @keyup.esc="cancelEditTodo"/>
+
         <textarea
           placeholder="Add a description"
+          class="edit__field description"
           v-if="input == 'description'"
           v-model.trim="editProp"
           ref="edit"
           @blur="onEditBlur"
           @keyup.enter="finishEditTodo"
           @keyup.esc="cancelEditTodo"/>
-      <button type="button" @click="finishEditTodo">Ok</button>
-      <slot/>
-      <button type="button" @click="cancelEditTodo">X</button>
+
+        <div class="controls">
+          <div class="controls__btn"
+            @click="finishEditTodo">
+            <svg class="icon icon-ok">
+              <use xlink:href="#check"/>
+            </svg>
+          </div>
+          <div class="controls__btn"
+            @click="cancelEditTodo">
+            <svg class="icon icon-remove">
+              <use xlink:href="#cross"/>
+            </svg>
+          </div>
+        </div>
   </div>
 </template>
 
 <script>
+import check from '@/assets/icons/svg/check.svg'
+import remove from '@/assets/icons/svg/cross.svg'
+
 export default {
   props: ['todoId', 'prop', 'input', 'placeholder'],
   data() {
@@ -42,21 +60,13 @@ export default {
     cancelEditTodo() {
       this.checkFinishTimeout()
 
-      if (!this.prop || this.prop.length === 0) {
-        this.$store.dispatch('removeTodo', this.todoId);
-      }
-
       this.$store.dispatch('unsetEditing');
     },
     finishEditTodo() {
       this.checkFinishTimeout()
 
-      if (!this.editProp || this.editProp.length === 0) {
-        this.$store.dispatch('removeTodo', this.todoId);
-      } else {
-        const editParams = {[this.input]: this.editProp};
-        this.$store.dispatch('editTodo', {id: this.todoId, params: editParams});
-      }
+      const editParams = {[this.input]: this.editProp};
+      this.$store.dispatch('editTodo', {id: this.todoId, params: editParams});
 
       this.$store.dispatch('unsetEditing');
 
@@ -83,5 +93,22 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
+<style lang="sass" scoped>
+  .edit
+    display: flex
+    align-items: center
+    &__field
+      width: 300px
+      margin-right: 7px
+      padding: 5px 10px
+      font-size: 16px
+      background-color: rgba(0, 0, 0, 0.2)
+      color: rgba(255, 255, 255, 0.8)
+      outline: none
+      border: none
+      border-radius: 5px
+      &::placeholder
+        color: rgba(255, 255, 255, 0.8)
+    .description
+      height: 70px
 </style>

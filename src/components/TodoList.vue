@@ -1,11 +1,12 @@
 <template lang="html">
-  <ul class="list">
+  <ul>
     <draggable
       v-if="todos"
       v-model="todoList"
       :move="isMovable"
       :options="{draggable:'.todo--draggable', group:'todos'}"
-      @input="$emit('input', $event)">
+      @input="$emit('input', $event)"
+      style="min-height: 5px">
       <TodoItem
         v-for="(todo, index) in todoList"
         :key="todo.id"
@@ -65,7 +66,4 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-.list
-  list-style: none
-
 </style>

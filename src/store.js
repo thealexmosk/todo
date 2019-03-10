@@ -88,6 +88,8 @@ const store = new Vuex.Store({
         const todo = state.todos[todoId];
         const childrenComplete = todo.subTodos.every( ind => state.todos[ind].completed );
 
+        if (todo.subTodos.length === 0) return;
+
         todo.completed = childrenComplete;
         todo.completedAt = childrenComplete ? new Date() : null;
 
@@ -183,6 +185,13 @@ const store = new Vuex.Store({
       }
     },
     editTodo: (context, todo) => {
+      if (todo.params.title !== undefined && todo.params.title.trim().length == 0) {
+        context.dispatch('removeTodo', todo.id)
+
+        if (context.state.modalTodo !== null) {
+          context.commit('CLOSE_MODAL');
+        }
+      }
       context.commit('EDIT_TODO', todo);
     },
     removeTodo: (context, id) => {

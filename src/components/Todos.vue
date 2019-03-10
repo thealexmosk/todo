@@ -2,35 +2,62 @@
   <div class="todos">
     <div class="todos__block todos__intro">
       <h1 class="title">
-        <div class="title__pre">
-          An awesome
-        </div>
-        <div class="title__main">
-          Task Manager
-        </div>
+        <transition appear
+          appear-active-class="appear-top appear-title">
+          <div class="title__pre">
+            An awesome
+          </div>
+        </transition>
+        <transition appear
+          appear-active-class="appear-bottom appear-title">
+          <div class="title__main">
+            Task Manager
+          </div>
+        </transition>
       </h1>
-      <AddTodoInput class="add-todo"/>
+      <transition appear
+        appear-active-class="appear-fade-in appear-add">
+        <AddTodoInput class="add-todo"/>
+      </transition>
     </div>
     <div class="todos__block todos__main">
-      <div class="todos__list">
-        <div class="list__wrapper">
-          <div class="list">
-            <TodoList :todos="$store.getters.todoList" :filter="filter"/>
-          </div>
-        </div>
-        <div class="controls">
-          <div class="controls__container">
-            <div class="filters">
-              <button type="button" @click="filter = 'all'">All</button>
-              <button type="button" @click="filter = 'active'">Active</button>
-              <button type="button" @click="filter = 'completed'">Completed</button>
-            </div>
-            <div class="clear">
-              <div class="clear__button" @click="localClear">Clear all</div>
+      <transition appear
+        appear-active-class="appear-fade-in appear-list">
+        <div class="todos__list">
+          <div class="list__wrapper">
+            <div class="list">
+              <TodoList :todos="$store.getters.todoList" :filter="filter"/>
             </div>
           </div>
+          <div class="controls">
+            <div class="controls__container">
+              <ul class="filter">
+                <li
+                  class="filter__item"
+                  :class="{'filter__item--active' : filter == 'all'}"
+                  @click="filter = 'all'">
+                  All
+                </li>
+                <li
+                  class="filter__item"
+                  :class="{'filter__item--active' : filter == 'active'}"
+                  @click="filter = 'active'">
+                  Active
+                </li>
+                <li
+                  class="filter__item"
+                  :class="{'filter__item--active' : filter == 'completed'}"
+                  @click="filter = 'completed'">
+                  Completed
+                </li>
+              </ul>
+              <div class="clear">
+                <div class="clear__button" @click="localClear">Clear all</div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </transition>
     </div>
     <TodoModal :todo="modalTodo" v-if="showModal"/>
   </div>
@@ -137,14 +164,15 @@ export default {
     text-align: center
     background-image: url('~@/assets/img/day.jpg')
     background-size: cover
+    overflow: hidden
     &__block
       display: flex
       flex-direction: column
       justify-content: space-around
     &__intro
-      height: 30%
+      height: 27%
     &__main
-      height: 70%
+      height: 73%
     &__list
       width: 80%
       height: 90%
@@ -183,27 +211,81 @@ export default {
     &__button
       color: rgba(255,255,255, 0.7)
       border-bottom: 1px solid rgba(255,255,255, 0.7)
-      font-size: 16px
+      font-size: 15px
       cursor: pointer
+    @media (max-width: 480px)
+      bottom: -20px
+      right: auto
 
-  .filters
+  .filter
     position: absolute
     margin: 0 auto
+    padding: 0
+    font-size: 14px
+    border-radius: 10px
+    cursor: pointer
+    overflow: hidden
+    opacity: 0.8
+    &__item
+      padding: 4px 12px
+      display: inline-block
+      &--active
+        background-color: rgba(221, 223, 241, 0.8)
+      &:not(.filter__item--active)
+        background-color: rgba(221, 223, 241, 0.4)
+        color: rgba(221, 223, 241, 0.8)
 
   .list
     position: absolute
     top: 0
-    bottom: 0
+    bottom: -17px
     left: 0
-    right: -17px
+    right: 0
     margin: 0
     text-align: left
     overflow-y: scroll
-    overflow-x: hidden
+    overflow-x: scroll
     &__wrapper
       position: relative
       height: 100%
       width: 100%
       overflow: hidden
+
+  .appear-top
+    opacity: 0
+    animation: slideInFromTop 1.5s
+
+  .appear-bottom
+    opacity: 0
+    animation: slideInFromBottom 1.5s
+
+  .appear-fade-in
+    opacity: 0
+    animation: fadeIn 2.5s
+
+  .appear-title
+    animation-delay: 1s
+  .appear-add
+    animation-delay: 2s
+  .appear-list
+    animation-delay: 3s
+
+  @keyframes slideInFromTop
+    0%
+      transform: translateY(-50%)
+    100%
+      transform: translateX(0)
+      opacity: 1
+
+  @keyframes slideInFromBottom
+    0%
+      transform: translateY(50%)
+    100%
+      transform: translateX(0)
+      opacity: 1
+
+  @keyframes fadeIn
+    100%
+      opacity: 1
 
 </style>

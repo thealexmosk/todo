@@ -1,6 +1,6 @@
 <template lang="html">
   <transition name="fade">
-    <div class="vdatetime-overlay modal" ref="modal" @click="close">
+    <div class="vdatetime-overlay modal theme-purple" ref="modal" @click="close">
         <div class="vdatetime-popup">
             <div class="vdatetime-popup__header">
               <div class="header__hours header__time">{{ `${strHours} hours` }}</div>

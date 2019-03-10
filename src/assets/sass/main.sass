@@ -9,6 +9,23 @@ html, body
 body
   margin: 0
   font-family: 'Open Sans', sans-serif
+  color: rgb(62, 64, 103)
+
+ul, li
+  list-style: none
+  margin: 0
+
+html
+    overflow: scroll
+    overflow-x: hidden
+
+::-webkit-scrollbar
+    width: 0px
+    background: transparent
+
+::-webkit-scrollbar-thumb
+    background: #FF0000
+
 
 .fade-enter-active, .fade-leave-active
   transition: opacity .5s
@@ -16,16 +33,81 @@ body
   opacity: 0
 
 
+.icon
+  width: 15px
+  height: 15px
+  fill: rgb(62, 64, 103)
+
+
 .time-field
   display: inline-block
-  &--extended:not(:last-child)
-    margin-right: 20px
+  margin-right: 10px
+  font-size: 15px
+  font-weight: normal
+  cursor: default
   &__label
     text-align: left
     font-size: 13px
     margin-bottom: 5px
-  &__val
-    display: inline-block
-    padding: 5px 10px
-    color: rgba(255, 255, 255, 0.9)
+  &__main
+    display: flex
+    align-items: center
+    padding: 3px 8px
+    color: rgb(221, 223, 241)
     border-radius: 5px
+    white-space: nowrap
+  &__icon
+    margin-right: 3px
+    fill: rgb(221, 223, 241)
+
+.controls
+  display: inline-table
+  white-space: nowrap
+  &__btn
+    display: table-cell
+    & > .icon
+      vertical-align: middle
+
+.btn
+  display: inline-table
+  padding: 2px
+  cursor: pointer
+  &__icon
+    display: table-cell
+    vertical-align: middle
+
+.todo-btn
+  &__container
+    display: flex
+    align-items: center
+    .btn
+      margin-left: 5px
+      opacity: 0.5
+      transition: opacity 0.5s ease
+    &:hover
+      .btn
+        opacity: 1
+
+.list-enter-active, .list-leave-active
+  transition: all 1s
+
+.list-enter, .list-leave-to
+  opacity: 0
+  transform: translateY(150px)
+
+
+#datetime
+  display: none
+.vdatetime-popup
+  border-radius: 5px
+
+.theme-purple .vdatetime-popup__header,
+.theme-purple .vdatetime-calendar__month__day--selected > span > span,
+.theme-purple .vdatetime-calendar__month__day--selected:hover > span > span
+  background-color: rgb(62, 64, 103)
+
+
+.theme-purple .vdatetime-year-picker__item--selected,
+.theme-purple .vdatetime-time-picker__item--selected,
+.theme-purple .vdatetime-popup__actions__button
+  color: rgb(62, 64, 103)

@@ -4,13 +4,21 @@
       Due Date
     </div>
     <div class="todo-btn__container">
-      <div class="time-field__val due-date" @dblclick="openDatetime">
-        <span>{{ dateStr }}</span>
+      <div class="time-field__main due-date" @dblclick="openDatetime">
+        <svg class="icon time-field__icon">
+          <use xlink:href="#calendar"/>
+        </svg>
+        <span class="time-field__val">{{ dateStr }}</span>
       </div>
-      <TodoButton type="edit" @click.native="openDatetime" v-if="extended"/>
+      <div class="time-btn btn"
+        @click="openDatetime" v-if="extended">
+        <svg class="icon icon-edit btn__icon">
+          <use xlink:href="#edit"/>
+        </svg>
+      </div>
       <Datetime
         v-model="date"
-        class="theme-green"
+        class="theme-purple"
         type='datetime'
         input-id="datetime"
         @input="$emit('input', date)"
@@ -26,6 +34,8 @@ import TodoButton from '@/components/TodoButton.vue'
 import {Datetime} from 'vue-datetime'
 import humanizeDuration from 'humanize-duration'
 import 'vue-datetime/dist/vue-datetime.css'
+
+import calendar from '@/assets/icons/svg/calendar.svg'
 
 const shortEnglishHumanizer = humanizeDuration.humanizer({
   language: 'shortEn',
@@ -67,7 +77,7 @@ export default {
         return 'Past Due'
 
       const dateStr = shortEnglishHumanizer(diffMs, { delimiter: ' ', units: ['mo', 'd', 'h'], largest: 1, round: true })
-      return `${dateStr} Left`
+      return `${dateStr} left`
     }
   },
   methods: {
@@ -93,24 +103,7 @@ export default {
 
 <style lang="sass" scoped>
   .due-date
-    background-color: rgba(78, 186, 111, 1)
-</style>
-
-<!-- Overriding Datetime classes -->
-<style lang="sass">
-  #datetime
-    display: none
-  .vdatetime-popup
-    border-radius: 5px
-
-  .theme-green .vdatetime-popup__header,
-  .theme-green .vdatetime-calendar__month__day--selected > span > span,
-  .theme-green .vdatetime-calendar__month__day--selected:hover > span > span
-    background-color: rgba(78, 186, 111, 1)
-
-
-  .theme-green .vdatetime-year-picker__item--selected,
-  .theme-green .vdatetime-time-picker__item--selected,
-  .theme-green .vdatetime-popup__actions__button
-    color: rgba(78, 186, 111, 1)
+    background-color: rgb(62, 64, 103)
+  .time-btn
+    margin-left: 5px
 </style>
