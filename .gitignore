@@ -1,6 +1,8 @@
 .DS_Store
 node_modules
 
+dist/
+
 #raw media
 src/assets/raw
 
