@@ -1,5 +1,8 @@
 ## Vue.js To-Do manager
 
+## DEMO
+https://thealexmosk.github.io/todo/index.html
+
 ### Features
 - Add a subtodo to each todo (up to infinite)
 - Automated todo completion 
