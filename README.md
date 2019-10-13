@@ -1,6 +1,6 @@
 ## Vue.js To-Do manager
 
-## DEMO
+### DEMO:
 https://thealexmosk.github.io/todo/index.html
 
 ### Features
