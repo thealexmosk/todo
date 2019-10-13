@@ -22,5 +22,6 @@ module.exports = {
       .rule('svg')
       .test(() => false)
       .use('file-loader')
-  }
+  },
+  publicPath: '/todo/'
 }
